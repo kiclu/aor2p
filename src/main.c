@@ -20,7 +20,7 @@ int main(int argc, const char** argv){
 
     // simd_sub_bmp_8bpc_npl(imgfile, 0x10);
 
-    // simd_gs_bmp_8bpc_npl(imgfile);
+    simd_gs_bmp_8bpc_npl(imgfile);
 
     img_fwrite(imgfile, argv[2]);
 
