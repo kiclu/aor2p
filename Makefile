@@ -12,13 +12,19 @@ LD      = ${TOOLPREFIX}ld
 OBJCOPY = ${TOOLPREFIX}objcopy
 OBJDUMP = ${TOOLPREFIX}objdump
 
-CFLAGS  = -Wall -O3 -Iinclude
+CFLAGS  = -Wall -O3 -Iinclude -Ilib -march=native
 
 SOURCES = $(shell find . -name "*.c" -printf "%P ")
 vpath %.c $(sort $(dir ${SOURCES}))
 
 all:
-	${CC} ${CFLAGS} -o ${TARGET} ${SOURCES}
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES}
+
+run:
+	./aor2p res/gouldian_finch.bmp output.bmp
+
+debug:
+	gdb --args ./aor2p res/gouldian_finch.bmp output.bmp
 
 clean:
 	rm -f ${TARGET}
