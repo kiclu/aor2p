@@ -52,10 +52,32 @@ void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
             simd_gs_bmp_8bpc(ptr_r, ptr_g, ptr_b);
         }
         for(; j < imgfile->width; ++j){
-            // TODO: implement
+            uint8_t gs = (
+                imgfile->imgdata._8bpc.r[i][j] * 0.299f +
+                imgfile->imgdata._8bpc.g[i][j] * 0.587f +
+                imgfile->imgdata._8bpc.b[i][j] * 0.114f
+            );
+
+            imgfile->imgdata._8bpc.r[i][j] = gs;
+            imgfile->imgdata._8bpc.g[i][j] = gs;
+            imgfile->imgdata._8bpc.b[i][j] = gs;
         }
     }
 }
 
 // no simd, convert to grayscale, .bmp, 8 bits per channel, no pipeline
-void gs_bmp_8bpc_npl(imgfile_t*);
+void gs_bmp_8bpc_npl(imgfile_t* imgfile){
+    for(size_t i = 0; i < imgfile->height; ++i){
+        for(size_t j = 0; j < imgfile->width; ++j){
+            uint8_t gs = (
+                imgfile->imgdata._8bpc.r[i][j] * 0.299f +
+                imgfile->imgdata._8bpc.g[i][j] * 0.587f +
+                imgfile->imgdata._8bpc.b[i][j] * 0.114f
+            );
+
+            imgfile->imgdata._8bpc.r[i][j] = gs;
+            imgfile->imgdata._8bpc.g[i][j] = gs;
+            imgfile->imgdata._8bpc.b[i][j] = gs;
+        }
+    }
+}
