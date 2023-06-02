@@ -16,11 +16,11 @@ int main(int argc, const char** argv){
     img_print_info(imgfile);
 
     // add_bmp_8bpc_npl(imgfile, 0x70);
-    // simd_adds_bmp_8bpc_npl(imgfile, 0xA0);
+    simd_adds_bmp_8bpc_npl(imgfile, 0xA0);
 
     // simd_sub_bmp_8bpc_npl(imgfile, 0x10);
 
-    simd_gs_bmp_8bpc_npl(imgfile);
+    // simd_gs_bmp_8bpc_npl(imgfile);
 
     img_fwrite(imgfile, argv[2]);
 

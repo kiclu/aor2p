@@ -10,7 +10,7 @@ divide every pixel in the image by constant
 */
 
 // simd, divide by constant, .bmp, 8 bits per channel, pipeline
-void simd_div_bmp_8bpc(__m256i*, __m256i*, __m256i*, uint8_t);
+void simd_div_bmp_8bpc(uint8_t*, uint8_t*, uint8_t*, uint8_t);
 
 // simd, divide by constant, .bmp, 8 bits per channel, no pipeline
 void simd_div_bmp_8bpc_npl(imgfile_t*, uint8_t);

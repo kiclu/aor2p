@@ -6,11 +6,11 @@
 
 /*
 OP_SUBS
-subtract constant from every pixel in the image
+subtract constant from every pixel in the image, saturate at 0
 */
 
 // simd, subtract constant from pixel, .bmp, 8 bits per channel, pipeline
-void simd_subs_bmp_8bpc(__m256i*, __m256i*, __m256i*, uint8_t);
+void simd_subs_bmp_8bpc(uint8_t*, uint8_t*, uint8_t*, uint8_t);
 
 // simd, subtract constant from pixel, .bmp, 8 bits per channel, no pipeline
 void simd_subs_bmp_8bpc_npl(imgfile_t*, uint8_t);

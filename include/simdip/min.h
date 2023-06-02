@@ -6,16 +6,16 @@
 
 /*
 OP_MIN
-replace pixel with minimum value of pixel and constant
+replace every pixel of image with minimum its value and constant
 */
 
-// simd, replace pixel with minimum of pixel and constant, .bmp, 8 bits per channel, pipeline
-void simd_min_bmp_8bpc(__m256i*, __m256i*, __m256i*, uint8_t);
+// simd, min, .bmp, 8 bits per channel, pipeline
+void simd_min_bmp_8bpc(uint8_t*, uint8_t*, uint8_t*, uint8_t);
 
-// simd, replace pixel with minimum of pixel and constant, .bmp, 8 bits per channel, no pipeline
+// simd, min, .bmp, 8 bits per channel, no pipeline
 void simd_min_bmp_8bpc_npl(imgfile_t*, uint8_t);
 
-// no simd, replace pixel with minimum of pixel and constant, .bmp, 8 bits per channel, no pipeline
+// no simd, min, .bmp, 8 bits per channel, no pipeline
 void min_bmp_8bpc_npl(imgfile_t*, uint8_t);
 
 #endif//_SIMDIP_MIN_H

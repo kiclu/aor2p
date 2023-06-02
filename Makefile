@@ -12,7 +12,7 @@ LD      = ${TOOLPREFIX}ld
 OBJCOPY = ${TOOLPREFIX}objcopy
 OBJDUMP = ${TOOLPREFIX}objdump
 
-CFLAGS  = -Wall -O3 -Iinclude -Ilib -march=native
+CFLAGS  = -Wall -Wno-sequence-point -O3 -Iinclude -Ilib -march=native
 
 SOURCES = $(shell find . -name "*.c" -printf "%P ")
 vpath %.c $(sort $(dir ${SOURCES}))
