@@ -97,7 +97,7 @@ int img_fwrite_bmp(imgfile_t* imgfile, const char* filename){
 }
 
 int img_fwrite(imgfile_t* imgfile, const char* filename){
-    char* dot = strrchr(filename, '.');
+    const char* dot = strrchr(filename, '.');
     if(NULL == dot){
         fprintf(stderr, "aor2p: error: invalid output file extension\n");
         return -1;
