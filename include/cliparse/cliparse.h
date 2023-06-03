@@ -40,10 +40,13 @@ typedef enum{
     // -gs, --greyscale
     OP_GS,
 
-    // -k=filenmae, --kernel=filename
-    OP_KERN
+    // -k=filename, --kernel=filename
+    OP_KERN,
+
+    // -o=filename
+    OP_WR
 } op_t;
 
-// int cliparse_init(int argc, const char** argv);
+int cliparse_init(int argc, const char** argv);
 
 #endif//_CLIPARSE_H
