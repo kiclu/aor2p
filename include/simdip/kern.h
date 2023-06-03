@@ -10,7 +10,7 @@ apply kernel to image
 */
 
 typedef struct {
-    uint8_t** kern;
+    int8_t** kern;
     size_t n;
     size_t m;
 } kern_t;
