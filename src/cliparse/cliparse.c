@@ -3,38 +3,6 @@
 #include<string.h>
 #include<stdbool.h>
 
-#include<simdip/kern.h>
-
-typedef union {
-    int op_const;
-    kern_t op_kern;
-    const char* op_fileio;
-} op_arg_t;
-
-typedef enum {
-    op_const,
-    op_kern,
-    op_fileio,
-    op_noarg
-} optype_t;
-
-typedef struct pnode{
-    op_t op;
-    optype_t type;
-    op_arg_t arg;
-    struct pnode* next;
-} pnode_t;
-
-typedef struct {
-    int argc;
-    const char** argv;
-
-    bool no_pipeline;
-    bool no_simd;
-
-    pnode_t* signal_chain;
-} args_t;
-
 static void insert_op_const(pnode_t** chain, op_t op, int arg){
     pnode_t* t = malloc(sizeof(pnode_t));
     t->op = op;
@@ -110,10 +78,22 @@ static void insert_op_noarg(pnode_t** chain, op_t op){
     i->next = t;
 }
 
-int cliparse_init(int argc, const char** argv){
+#include<imgparse/imgparse.h>
+
+args_t* cliparse(int argc, const char** argv){
     if(argc < 2) {
         // TODO: print help page
-        return -1;
+        return NULL;
+    }
+
+    // initialize args structure
+    args_t* args = malloc(sizeof(args_t));
+
+    // read input file
+    args->imgfile = img_fread(argv[1]);
+    if(NULL == args->imgfile){
+        free(args);
+        return NULL;
     }
 
     // check for valid output file
@@ -126,112 +106,110 @@ int cliparse_init(int argc, const char** argv){
 
     if(!output_file_bmp && !output_file_png){
         // TODO: no output file error
-        return -1;
+        img_free(args->imgfile);
+        free(args);
+        return NULL;
     }
 
     if(output_file_bmp && output_file_png){
         // TODO: mismatched output filetypes error
-        return -1;
+        img_free(args->imgfile);
+        free(args);
+        return NULL;
     }
 
-    bool no_pipeline = false;
-    bool no_simd = false;
-
     for(int i = 2; i < argc; ++i){
-        if(strstr(argv[i], "--no-pipeline")) no_pipeline = true;
-        if(strstr(argv[i], "--no-simd")) no_simd = true;
+        if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
+        if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
     }
 
-
-    args_t* args = malloc(sizeof(args_t));
-
     for(int i = 2; i < argc; ++i){
-        if(strstr(argv[i], "-a=") || strstr(argv[i], "--add=")){
+        if(argv[i] == strstr(argv[i], "-a=") || argv[i] == strstr(argv[i], "--add=")){
             insert_op_const(&args->signal_chain, OP_ADD, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-s=") || strstr(argv[i], "--sub=")){
+        if(argv[i] == strstr(argv[i], "-s=") || argv[i] == strstr(argv[i], "--sub=")){
             insert_op_const(&args->signal_chain, OP_SUB, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-is=") || strstr(argv[i], "--isub=")){
+        if(argv[i] == strstr(argv[i], "-is=") || argv[i] == strstr(argv[i], "--isub=")){
             insert_op_const(&args->signal_chain, OP_ISUB, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-m=") || strstr(argv[i], "--mul=")){
+        if(argv[i] == strstr(argv[i], "-m=") || argv[i] == strstr(argv[i], "--mul=")){
             insert_op_const(&args->signal_chain, OP_MUL, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-d=") || strstr(argv[i], "--div=")){
+        if(argv[i] == strstr(argv[i], "-d=") || argv[i] == strstr(argv[i], "--div=")){
             insert_op_const(&args->signal_chain, OP_DIV, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-id=") || strstr(argv[i], "--idiv=")){
+        if(argv[i] == strstr(argv[i], "-id=") || argv[i] == strstr(argv[i], "--idiv=")){
             insert_op_const(&args->signal_chain, OP_IDIV, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-as=") || strstr(argv[i], "--add-saturate=")){
+        if(argv[i] == strstr(argv[i], "-as=") || argv[i] == strstr(argv[i], "--add-saturate=")){
             insert_op_const(&args->signal_chain, OP_ADDS, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-ss=") || strstr(argv[i], "--sub-saturate=")){
+        if(argv[i] == strstr(argv[i], "-ss=") || argv[i] == strstr(argv[i], "--sub-saturate=")){
             insert_op_const(&args->signal_chain, OP_SUBS, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-iss=") || strstr(argv[i], "--isub-saturate=")){
+        if(argv[i] == strstr(argv[i], "-iss=") || argv[i] == strstr(argv[i], "--isub-saturate=")){
             insert_op_const(&args->signal_chain, OP_ISUBS, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-p=") || strstr(argv[i], "--pow=")){
+        if(argv[i] == strstr(argv[i], "-p=") || argv[i] == strstr(argv[i], "--pow=")){
             insert_op_const(&args->signal_chain, OP_POW, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-l=") || strstr(argv[i], "--log=")){
+        if(argv[i] == strstr(argv[i], "-l=") || argv[i] == strstr(argv[i], "--log=")){
             insert_op_const(&args->signal_chain, OP_LOG, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "--abs")){
+        if(argv[i] == strstr(argv[i], "--abs")){
             insert_op_noarg(&args->signal_chain, OP_ABS);
             continue;
         }
 
-        if(strstr(argv[i], "--min=")){
+        if(argv[i] == strstr(argv[i], "--min=")){
             insert_op_const(&args->signal_chain, OP_MIN, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "--max=")){
+        if(argv[i] == strstr(argv[i], "--max=")){
             insert_op_const(&args->signal_chain, OP_MAX, atoi(strchr(argv[i], '=') + 1));
             continue;
         }
 
-        if(strstr(argv[i], "-n") || strstr(argv[i], "--neg")){
+        if(argv[i] == strstr(argv[i], "-n") || argv[i] == strstr(argv[i], "--neg")){
             insert_op_noarg(&args->signal_chain, OP_NEG);
             continue;
         }
 
-        if(strstr(argv[i], "-gs") || strstr(argv[i], "--greyscale")){
+        if(argv[i] == strstr(argv[i], "-gs") || argv[i] == strstr(argv[i], "--greyscale")){
             insert_op_noarg(&args->signal_chain, OP_GS);
             continue;
         }
 
-        if(strstr(argv[i], "-k=") || strstr(argv[i], "--kernel=")){
+        if(argv[i] == strstr(argv[i], "-k=") || argv[i] == strstr(argv[i], "--kernel=")){
             insert_op_kernel(&args->signal_chain, OP_KERN, strchr(argv[i], '=') + 1);
             continue;
         }
 
-        if(strstr(argv[i], "-o=")){
+        if(argv[i] == strstr(argv[i], "-o=")){
             insert_op_fileio(&args->signal_chain, OP_WR, strchr(argv[i], '=') + 1);
             continue;
         }
@@ -273,5 +251,6 @@ int cliparse_init(int argc, const char** argv){
             case op_noarg:  printf("\n"); break;
         }
     }
-    return 0;
+
+    return args;
 }

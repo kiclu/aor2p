@@ -3,6 +3,9 @@
 
 #include<stdbool.h>
 
+#include<imgparse/imgfile.h>
+#include<simdip/kern.h>
+
 typedef enum{
     // -a=const, --add=const
     OP_ADD,
@@ -47,6 +50,35 @@ typedef enum{
     OP_WR
 } op_t;
 
-int cliparse_init(int argc, const char** argv);
+typedef union {
+    int op_const;
+    kern_t op_kern;
+    const char* op_fileio;
+} op_arg_t;
+
+typedef enum {
+    op_const,
+    op_kern,
+    op_fileio,
+    op_noarg
+} optype_t;
+
+typedef struct pnode{
+    op_t op;
+    optype_t type;
+    op_arg_t arg;
+    struct pnode* next;
+} pnode_t;
+
+typedef struct args{
+    imgfile_t* imgfile;
+
+    pnode_t* signal_chain;
+
+    bool no_pipeline;
+    bool no_simd;
+} args_t;
+
+args_t* cliparse(int argc, const char** argv);
 
 #endif//_CLIPARSE_H

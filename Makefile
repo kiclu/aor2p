@@ -12,7 +12,9 @@ LD      = ${TOOLPREFIX}ld
 OBJCOPY = ${TOOLPREFIX}objcopy
 OBJDUMP = ${TOOLPREFIX}objdump
 
-CFLAGS  = -Wall -Wno-sequence-point -O3 -Iinclude -Ilib -march=native
+SIGNAL_CHAIN = -a=1 -a=1 -o=output.bmp
+
+CFLAGS  = -Wall -O3 -Wno-sequence-point -Iinclude -Ilib -march=native
 
 SOURCES = $(shell find . -name "*.c" -printf "%P ")
 vpath %.c $(sort $(dir ${SOURCES}))
@@ -21,10 +23,16 @@ all:
 	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES}
 
 run:
-	./aor2p res/gouldian_finch.bmp output.bmp
+	./aor2p res/gouldian_finch.bmp ${SIGNAL_CHAIN}
+
+nsnp:
+	./aor2p res/gouldian_finch.bmp --no-pipeline --no-simd ${SIGNAL_CHAIN}
+
+np:
+	./aor2p res/gouldian_finch.bmp --no-pipeline ${SIGNAL_CHAIN}
 
 debug:
-	gdb --args ./aor2p res/gouldian_finch.bmp output.bmp
+	gdb --args ./aor2p res/gouldian_finch.bmp ${SIGNAL_CHAIN}
 
 clean:
 	rm -f ${TARGET}

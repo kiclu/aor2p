@@ -2,31 +2,20 @@
 
 #include<imgparse/imgparse.h>
 #include<cliparse/cliparse.h>
-
 #include<simdip/simdip.h>
 
 int main(int argc, const char** argv){
-    if(argc < 2){
-        // TODO: print help page
-        return 1;
+    args_t* args = cliparse(argc, argv);
+    if(NULL == args){
+        // TODO: handle error
+        return -1;
     }
 
-    cliparse_init(argc, argv);
-    
-    // imgfile_t* imgfile = img_fread(argv[1]);
+    uint64_t time = process(args);
+    printf("time taken: %luns\n", time);
 
-    // img_print_info(imgfile);
-
-    // add_bmp_8bpc_npl(imgfile, 0x70);
-    // simd_adds_bmp_8bpc_npl(imgfile, 0xA0);
-
-    // simd_sub_bmp_8bpc_npl(imgfile, 0x10);
-
-    // simd_gs_bmp_8bpc_npl(imgfile);
-
-    // img_fwrite(imgfile, argv[2]);
-
-    // img_free(imgfile);
+    img_free(args->imgfile);
+    free(args);
 
     return 0;
 }
