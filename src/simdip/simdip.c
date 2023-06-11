@@ -18,7 +18,9 @@ uint64_t timer_end(struct timespec start_time){
 }
 
 // process, no simd & no pipeline
-static void process_ns_np(args_t* args){
+static uint64_t process_ns_np(args_t* args){
+    struct timespec start_time = timer_start();
+    uint64_t write_time = 0;
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
             case OP_ADD:    add_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
@@ -43,18 +45,25 @@ static void process_ns_np(args_t* args){
 
             // case OP_KERN:   kern_bmp_8bpc_npl  (args->imgfile, i->arg.op_kern);  break;
 
-            case OP_WR: img_fwrite(args->imgfile, i->arg.op_fileio); break;
+            case OP_WR:{
+                struct timespec write_start_time = timer_start();
+                img_fwrite(args->imgfile, i->arg.op_fileio);
+                write_time += timer_end(write_start_time);
+            } break;
         }
     }
+    return timer_end(start_time) - write_time;
 }
 
 // process, no simd & pipeline
-static void process_ns(args_t* args){
-
+static uint64_t process_ns(args_t* args){
+    return 0;
 }
 
 // process, simd & no pipeline
-static void process_np(args_t* args){
+static uint64_t process_np(args_t* args){
+    struct timespec start_time = timer_start();
+    uint64_t write_time = 0;
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
             case OP_ADD:    simd_add_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
@@ -79,15 +88,22 @@ static void process_np(args_t* args){
 
             // case OP_KERN:   simd_kern_bmp_8bpc_npl  (args->imgfile, i->arg.op_kern);  break;
 
-            case OP_WR: img_fwrite(args->imgfile, i->arg.op_fileio); break;
+            case OP_WR:{
+                struct timespec write_start_time = timer_start();
+                img_fwrite(args->imgfile, i->arg.op_fileio);
+                write_time += timer_end(write_start_time);
+            } break;
         }
     }
+    return timer_end(start_time) - write_time;
 }
 
 #define rgb_ptrs ptr_r + j, ptr_g + j, ptr_b + j
 
 // process, simd & pipeline
-static void process_opt(args_t* args){
+static uint64_t process_opt(args_t* args){
+    struct timespec start_time = timer_start();
+    uint64_t write_time = 0;
     pnode_t* start_s = args->signal_chain;
     pnode_t* end_s = args->signal_chain;
     while(start_s){
@@ -132,33 +148,33 @@ static void process_opt(args_t* args){
         }
 
         if(end_s && OP_WR == end_s->op){
+            struct timespec write_start_time = timer_start();
             img_fwrite(args->imgfile, end_s->arg.op_fileio);
+            write_time += timer_end(write_start_time);
         }
 
         start_s = end_s->next;
     }
+
+    return timer_end(start_time) - write_time;
 }
 
 uint64_t process(args_t* args){
     if(args->no_simd && args->no_pipeline){
-        struct timespec start_time = timer_start();
-        process_ns_np(args);
-        return timer_end(start_time);
+        return process_ns_np(args);
     }
 
     if(args->no_simd && !args->no_pipeline){
-        struct timespec start_time = timer_start();
-        process_ns(args);
-        return timer_end(start_time);
+        return process_ns(args);
     }
 
     if(!args->no_simd && args->no_pipeline){
         struct timespec start_time = timer_start();
-        process_np(args);
+        return process_np(args);
         return timer_end(start_time);
     }
 
-    struct timespec start_time = timer_start();
-    process_opt(args);
-    return timer_end(start_time);
+    
+    return process_opt(args);
+    
 }
