@@ -13,9 +13,8 @@ int main(int argc, const char** argv){
 
     uint64_t time = process(args);
     printf("time taken: %luns\n", time);
-
-    img_free(args->imgfile);
-    free(args);
+    
+    cliparse_free(args);
 
     return 0;
 }

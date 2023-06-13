@@ -121,4 +121,18 @@ int img_fwrite(imgfile_t* imgfile, const char* filename){
 
 void img_free(imgfile_t* imgfile){
     if(imgfile->filetype == BMP) bmp_img_free(&imgfile->img.bmp);
+
+    for(uint32_t i = 0; i < imgfile->height; ++i){
+        free(imgfile->imgdata._8bpc.r[i]);
+        free(imgfile->imgdata._8bpc.g[i]);
+        free(imgfile->imgdata._8bpc.b[i]);
+    }
+    
+    free(imgfile->imgdata._8bpc.r);
+    free(imgfile->imgdata._8bpc.g);
+    free(imgfile->imgdata._8bpc.b);
+
+    free(imgfile->filename);
+
+    free(imgfile);
 }

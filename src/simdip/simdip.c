@@ -30,7 +30,7 @@ static uint64_t process_ns_np(args_t* args){
             // case OP_DIV:    div_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
             // case OP_IDIV:   divi_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
 
-            // case OP_ADDS:   adds_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_ADDS:   adds_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
             // case OP_SUBS:   subs_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
             // case OP_ISUBS:  subis_bmp_8bpc_npl (args->imgfile, i->arg.op_const); break;
 
@@ -73,7 +73,7 @@ static uint64_t process_np(args_t* args){
             // case OP_DIV:    simd_div_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
             // case OP_IDIV:   simd_divi_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
 
-            // case OP_ADDS:   simd_adds_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_ADDS:   simd_adds_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
             // case OP_SUBS:   simd_subs_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
             // case OP_ISUBS:  simd_subis_bmp_8bpc_npl (args->imgfile, i->arg.op_const); break;
 
@@ -124,7 +124,7 @@ static uint64_t process_opt(args_t* args){
                         // case OP_DIV:    simd_div_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
                         // case OP_IDIV:   simd_divi_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
 
-                        // case OP_ADDS:   simd_adds_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADDS:   simd_adds_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
                         // case OP_SUBS:   simd_subs_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
                         // case OP_ISUBS:  simd_subis_bmp_8bpc (rgb_ptrs, s->arg.op_const); break;
 
@@ -160,21 +160,8 @@ static uint64_t process_opt(args_t* args){
 }
 
 uint64_t process(args_t* args){
-    if(args->no_simd && args->no_pipeline){
-        return process_ns_np(args);
-    }
-
-    if(args->no_simd && !args->no_pipeline){
-        return process_ns(args);
-    }
-
-    if(!args->no_simd && args->no_pipeline){
-        struct timespec start_time = timer_start();
-        return process_np(args);
-        return timer_end(start_time);
-    }
-
-    
+    if( args->no_simd &&  args->no_pipeline) return process_ns_np(args);
+    if( args->no_simd && !args->no_pipeline) return process_ns(args);
+    if(!args->no_simd &&  args->no_pipeline) return process_np(args);
     return process_opt(args);
-    
 }

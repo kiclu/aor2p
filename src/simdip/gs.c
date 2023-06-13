@@ -2,39 +2,41 @@
 
 // simd, convert to grayscale, .bmp, 8 bits per channel, pipeline
 void simd_gs_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
-    __m256 vr = _mm256_cvtepi32_ps(
-        _mm256_setr_epi32(
-            ptr_r[0], ptr_r[1], ptr_r[2], ptr_r[3],
-            ptr_r[4], ptr_r[5], ptr_r[6], ptr_r[7]
-        )
-    );
+    for(uint32_t k = 0; k < 32; k += 8){
+        __m256 vr = _mm256_cvtepi32_ps(
+            _mm256_setr_epi32(
+                ptr_r[k+0], ptr_r[k+1], ptr_r[k+2], ptr_r[k+3],
+                ptr_r[k+4], ptr_r[k+5], ptr_r[k+6], ptr_r[k+7]
+            )
+        );
 
-    __m256 sum = _mm256_mul_ps(vr, _mm256_set1_ps(0.299));
+        __m256 sum = _mm256_mul_ps(vr, _mm256_set1_ps(0.299));
 
-    __m256 vg = _mm256_cvtepi32_ps(
-        _mm256_setr_epi32(
-            ptr_g[0], ptr_g[1], ptr_g[2], ptr_g[3],
-            ptr_g[4], ptr_g[5], ptr_g[6], ptr_g[7]
-        )
-    );
+        __m256 vg = _mm256_cvtepi32_ps(
+            _mm256_setr_epi32(
+                ptr_g[k+0], ptr_g[k+1], ptr_g[k+2], ptr_g[k+3],
+                ptr_g[k+4], ptr_g[k+5], ptr_g[k+6], ptr_g[k+7]
+            )
+        );
 
-    sum = _mm256_fmadd_ps(vg, _mm256_set1_ps(0.587), sum);
+        sum = _mm256_fmadd_ps(vg, _mm256_set1_ps(0.587), sum);
 
-    __m256 vb = _mm256_cvtepi32_ps(
-        _mm256_setr_epi32(
-            ptr_b[0], ptr_b[1], ptr_b[2], ptr_b[3],
-            ptr_b[4], ptr_b[5], ptr_b[6], ptr_b[7]
-        )
-    );
+        __m256 vb = _mm256_cvtepi32_ps(
+            _mm256_setr_epi32(
+                ptr_b[k+0], ptr_b[k+1], ptr_b[k+2], ptr_b[k+3],
+                ptr_b[k+4], ptr_b[k+5], ptr_b[k+6], ptr_b[k+7]
+            )
+        );
 
-    sum = _mm256_fmadd_ps(vb, _mm256_set1_ps(0.114), sum);
+        sum = _mm256_fmadd_ps(vb, _mm256_set1_ps(0.114), sum);
 
-    __m256i gs = _mm256_cvtps_epi32(sum);
+        __m256i gs = _mm256_cvtps_epi32(sum);
 
-    for(size_t i = 0; i < 8; ++i){
-        ptr_r[i] = *((uint8_t*)&gs + (i << 2));
-        ptr_g[i] = *((uint8_t*)&gs + (i << 2));
-        ptr_b[i] = *((uint8_t*)&gs + (i << 2));
+        for(size_t i = 0; i < 8; ++i){
+            ptr_r[k+i] = *((uint8_t*)&gs + (i << 2));
+            ptr_g[k+i] = *((uint8_t*)&gs + (i << 2));
+            ptr_b[k+i] = *((uint8_t*)&gs + (i << 2));
+        }
     }
 }
 
@@ -46,7 +48,7 @@ void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
         uint8_t* ptr_b = imgfile->imgdata._8bpc.b[i];
 
         size_t j = 0;
-        for(; j < (imgfile->width & ~0x1F); j += 8){
+        for(; j < (imgfile->width & ~0x1F); j += 32){
             simd_gs_bmp_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
         }
 

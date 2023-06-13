@@ -41,6 +41,12 @@ void adds_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(uint32_t i = 0; i < imgfile->height; ++i){
         for(uint32_t j = 0; j < imgfile->width; ++j){
             // TODO: implement
+            uint8_t r = imgfile->imgdata._8bpc.r[i][j];
+            uint8_t g = imgfile->imgdata._8bpc.g[i][j];
+            uint8_t b = imgfile->imgdata._8bpc.b[i][j];
+            imgfile->imgdata._8bpc.r[i][j] = (uint16_t)r + c > 0xFF ? 0xFF : r + c;
+            imgfile->imgdata._8bpc.g[i][j] = (uint16_t)g + c > 0xFF ? 0xFF : g + c;
+            imgfile->imgdata._8bpc.b[i][j] = (uint16_t)b + c > 0xFF ? 0xFF : b + c;
         }
     }
 }

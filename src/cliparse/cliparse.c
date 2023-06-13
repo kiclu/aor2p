@@ -254,3 +254,14 @@ args_t* cliparse(int argc, const char** argv){
 
     return args;
 }
+
+void cliparse_free(args_t* args){
+    if(NULL == args) return;
+
+    pnode_t* p = args->signal_chain;
+    for(pnode_t* i = p->next; i; i = i->next){ free(p); p = i; }
+    free(p);
+
+    img_free(args->imgfile);
+    free(args);
+}

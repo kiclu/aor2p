@@ -19,7 +19,7 @@ typedef struct imgdata_16bpc{
 } imgdata_16bpc;
 
 typedef union imgdata{
-    imgdata_8bpc _8bpc;
+    imgdata_8bpc  _8bpc;
     imgdata_16bpc _16bpc;
 } imgdata_t;
 
@@ -28,17 +28,15 @@ typedef union img{
 } img_t;
 
 typedef struct imgfile{
-    char* filename;
+    char*         filename;
 
-    size_t width;
-    size_t height;
-    size_t bit_depth;
+    size_t        width;
+    size_t        height;
+    size_t        bit_depth;
 
-    imgdata_t imgdata;
-
+    img_t         img;
+    imgdata_t     imgdata;
     imgfiletype_t filetype;
-
-    img_t img;
 } imgfile_t;
 
 #endif//_AOR2P_IMGPARSE_IMGFILE_H

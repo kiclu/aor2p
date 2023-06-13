@@ -51,8 +51,8 @@ typedef enum{
 } op_t;
 
 typedef union {
-    int op_const;
-    kern_t op_kern;
+    int         op_const;
+    kern_t      op_kern;
     const char* op_fileio;
 } op_arg_t;
 
@@ -64,21 +64,22 @@ typedef enum {
 } optype_t;
 
 typedef struct pnode{
-    op_t op;
-    optype_t type;
-    op_arg_t arg;
-    struct pnode* next;
+    op_t            op;
+    optype_t        type;
+    op_arg_t        arg;
+    struct pnode*   next;
 } pnode_t;
 
 typedef struct args{
-    imgfile_t* imgfile;
+    imgfile_t*  imgfile;
 
-    pnode_t* signal_chain;
+    pnode_t*    signal_chain;
 
-    bool no_pipeline;
-    bool no_simd;
+    bool        no_pipeline;
+    bool        no_simd;
 } args_t;
 
 args_t* cliparse(int argc, const char** argv);
+void cliparse_free(args_t* args);
 
 #endif//_CLIPARSE_H
