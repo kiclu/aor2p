@@ -38,15 +38,14 @@ void simd_adds_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
 // no simd, add constant, .bmp, 8 bits per channel, no pipeline
 void adds_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
-    for(uint32_t i = 0; i < imgfile->height; ++i){
-        for(uint32_t j = 0; j < imgfile->width; ++j){
-            // TODO: implement
+    for(size_t i = 0; i < imgfile->height; ++i){
+        for(size_t j = 0; j < imgfile->width; ++j){
             uint8_t r = imgfile->imgdata._8bpc.r[i][j];
             uint8_t g = imgfile->imgdata._8bpc.g[i][j];
             uint8_t b = imgfile->imgdata._8bpc.b[i][j];
-            imgfile->imgdata._8bpc.r[i][j] = (uint16_t)r + c > 0xFF ? 0xFF : r + c;
-            imgfile->imgdata._8bpc.g[i][j] = (uint16_t)g + c > 0xFF ? 0xFF : g + c;
-            imgfile->imgdata._8bpc.b[i][j] = (uint16_t)b + c > 0xFF ? 0xFF : b + c;
+            imgfile->imgdata._8bpc.r[i][j] = r + c > 0xFF ? 0xFF : r + c;
+            imgfile->imgdata._8bpc.g[i][j] = g + c > 0xFF ? 0xFF : g + c;
+            imgfile->imgdata._8bpc.b[i][j] = b + c > 0xFF ? 0xFF : b + c;
         }
     }
 }
