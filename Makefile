@@ -12,7 +12,7 @@ LD      = ${TOOLPREFIX}ld
 OBJCOPY = ${TOOLPREFIX}objcopy
 OBJDUMP = ${TOOLPREFIX}objdump
 
-SIGNAL_CHAIN = -as=10 -as=10 -gs -as=10 -as=10 -as=10 -s=30 -a=10 -a=10 -o=output.bmp
+SIGNAL_CHAIN = -as=16 -gs -o=output.bmp
 
 SIGNAL_CHAIN_LOAD = -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 \
 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 \
@@ -22,31 +22,44 @@ SIGNAL_CHAIN_LOAD = -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 
 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 \
 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -a=1 -s=1 -o=output_load.bmp
 
-CFLAGS  = -Wall -O3 -Wno-sequence-point -Iinclude -Ilib -march=native
+SIGNAL_CHAIN_LOAD_GS = -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs \
+-gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs \
+-gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -gs -o=output_load_gs.bmp
+
+CFLAGS  = -Wall -O2 -Wno-sequence-point -Iinclude -Ilib -march=native
 
 SOURCES = $(shell find . -name "*.c" -printf "%P ")
 vpath %.c $(sort $(dir ${SOURCES}))
 
 all:
-	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES}
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm
 
-run_opt:
+run_s3:
 	./aor2p res/gouldian_finch.bmp ${SIGNAL_CHAIN}
 
-run_nsnp:
+run_s0:
 	./aor2p res/gouldian_finch.bmp --no-pipeline --no-simd ${SIGNAL_CHAIN}
 
-run_np:
+run_s2:
 	./aor2p res/gouldian_finch.bmp --no-pipeline ${SIGNAL_CHAIN}
 
-run_opt_stress:
+run_s3_stress:
 	./aor2p res/gouldian_finch.bmp ${SIGNAL_CHAIN_LOAD}
 
-run_nsnp_stress:
+run_s0_stress:
 	./aor2p res/gouldian_finch.bmp --no-pipeline --no-simd ${SIGNAL_CHAIN_LOAD}
 
-run_np_stress:
+run_s2_stress:
 	./aor2p res/gouldian_finch.bmp --no-pipeline ${SIGNAL_CHAIN_LOAD}
+
+run_s3_stress_gs:
+	./aor2p res/gouldian_finch.bmp ${SIGNAL_CHAIN_LOAD_GS}
+
+run_s0_stress_gs:
+	./aor2p res/gouldian_finch.bmp --no-pipeline --no-simd ${SIGNAL_CHAIN_LOAD_GS}
+
+run_s2_stress_gs:
+	./aor2p res/gouldian_finch.bmp --no-pipeline ${SIGNAL_CHAIN_LOAD_GS}
 
 debug:
 	gdb --args ./aor2p res/gouldian_finch.bmp --no-pipeline --no-simd ${SIGNAL_CHAIN_LOAD}
@@ -56,6 +69,8 @@ valgrind:
 
 clean:
 	rm -f ${TARGET}
+	rm -f *.bmp
+	rm -f *.jpg
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.

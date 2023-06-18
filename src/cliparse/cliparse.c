@@ -174,8 +174,8 @@ args_t* cliparse(int argc, const char** argv){
             continue;
         }
 
-        if(argv[i] == strstr(argv[i], "-l=") || argv[i] == strstr(argv[i], "--log=")){
-            insert_op_const(&args->signal_chain, OP_LOG, atoi(strchr(argv[i], '=') + 1));
+        if(argv[i] == strstr(argv[i], "-l") || argv[i] == strstr(argv[i], "--log")){
+            insert_op_noarg(&args->signal_chain, OP_LOG);
             continue;
         }
 
@@ -217,6 +217,7 @@ args_t* cliparse(int argc, const char** argv){
         // TODO: handle parameter not recognized error
     }
 
+#ifdef  SIMDIP_VERBOSE
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
             case OP_ADD:   printf("op_add");   break;
@@ -251,6 +252,7 @@ args_t* cliparse(int argc, const char** argv){
             case op_noarg:  printf("\n"); break;
         }
     }
+#endif//SIMDIP_VERBOSE
 
     return args;
 }

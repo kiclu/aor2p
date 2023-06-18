@@ -15,7 +15,7 @@ void simd_abs_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     _mm256_store_si256((__m256i*)ptr_b, _mm256_abs_epi8(va_b));
 }
 
-inline static int8_t abs(int8_t x){ return x >= 0 ? x : -x; }
+inline static int8_t _abs(int8_t x){ return x >= 0 ? x : -x; }
 
 // simd, absolute value, .bmp, 8 bits per channel, no pipeline
 void simd_abs_bmp_8bpc_npl(imgfile_t* imgfile){
@@ -26,13 +26,13 @@ void simd_abs_bmp_8bpc_npl(imgfile_t* imgfile){
 
         size_t j = 0;
         for(; j < (imgfile->width & ~0x1F); j += 32){
-            simd_abs_bmp_8bpc(ptr_r + j, ptr_g + j, ptr_b + j, c);
+            simd_abs_bmp_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
         }
 
         for(; j < imgfile->width; ++j){
-            *ptr_r++ = abs(*ptr_r);
-            *ptr_g++ = abs(*ptr_g);
-            *ptr_b++ = abs(*ptr_b);
+            *ptr_r++ = _abs(*ptr_r);
+            *ptr_g++ = _abs(*ptr_g);
+            *ptr_b++ = _abs(*ptr_b);
         }
     }
 }
@@ -41,9 +41,9 @@ void simd_abs_bmp_8bpc_npl(imgfile_t* imgfile){
 void abs_bmp_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            imgfile->imgdata._8bpc.r[i][j] = abs(imgfile->imgdata._8bpc.r[i][j]);
-            imgfile->imgdata._8bpc.g[i][j] = abs(imgfile->imgdata._8bpc.g[i][j]);
-            imgfile->imgdata._8bpc.b[i][j] = abs(imgfile->imgdata._8bpc.b[i][j]);
+            imgfile->imgdata._8bpc.r[i][j] = _abs(imgfile->imgdata._8bpc.r[i][j]);
+            imgfile->imgdata._8bpc.g[i][j] = _abs(imgfile->imgdata._8bpc.g[i][j]);
+            imgfile->imgdata._8bpc.b[i][j] = _abs(imgfile->imgdata._8bpc.b[i][j]);
         }
     }
 }
