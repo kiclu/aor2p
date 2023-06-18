@@ -88,8 +88,10 @@ ___
 ___
 ### 2.5. Kernel filtering
 //
+___
 ### 2.6. File operations
 `-o=output_file`
+___
 ### 2.7. Optimization level
 `--no-pipeline`\
 `--no-simd`\
