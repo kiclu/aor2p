@@ -88,8 +88,14 @@ ___
 ___
 ### 2.5. Kernel filtering
 //
-### 2.6. File operations\
+### 2.6. File operations
 `-o=output_file`
+### 2.7. Optimization level
+`--no-pipeline`\
+`--no-simd`\
+`-s0` - no optimizations\
+`-s2` - SIMD, no pipeline\
+`-s3` - SIMD & pipeline, default
 ## 3. TODO
 - [ ] implement kern
 - [ ] implement min/max

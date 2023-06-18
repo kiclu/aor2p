@@ -118,9 +118,29 @@ args_t* cliparse(int argc, const char** argv){
         return NULL;
     }
 
+    int opt_level = -1;
     for(int i = 2; i < argc; ++i){
-        if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
-        if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
+        if(argv[i] == strstr(argv[i], "-s0")){
+            args->no_pipeline = args->no_simd = true;
+            opt_level = 0;
+            break;
+        }
+        if(argv[i] == strstr(argv[i], "-s2")){
+            args->no_pipeline = true;
+            opt_level = 2;
+            break;
+        }
+        if(argv[i] == strstr(argv[i], "-s3")){
+            opt_level = 3;
+            break;
+        }
+    }
+    
+    if(opt_level != -1){
+        for(int i = 2; i < argc; ++i){
+            if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
+            if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
+        }
     }
 
     for(int i = 2; i < argc; ++i){
