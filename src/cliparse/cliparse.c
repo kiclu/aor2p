@@ -136,7 +136,7 @@ args_t* cliparse(int argc, const char** argv){
         }
     }
     
-    if(opt_level != -1){
+    if(opt_level == -1){
         for(int i = 2; i < argc; ++i){
             if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
             if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
