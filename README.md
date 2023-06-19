@@ -16,7 +16,7 @@ ___
 **2.1.3.  Arithmetic inverse sub**\
 `px[r,g,b] <= c - px[r,g,b]`\
 \
-`-is=const.` / `-isub=const.`
+`-is=const.` / `--isub=const.`
 ___
 **2.1.4.  Arithmetic mul**\
 `px[r,g,b] <= px[r,g,b] * c`\
@@ -88,8 +88,10 @@ ___
 ___
 ### 2.5. Kernel filtering
 //
+___
 ### 2.6. File operations
 `-o=output_file`
+___
 ### 2.7. Optimization level
 `--no-pipeline`\
 `--no-simd`\
