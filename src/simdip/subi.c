@@ -16,8 +16,6 @@ void simd_subi_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t 
     _mm256_store_si256((__m256i*)ptr_b, _mm256_sub_epi8(vc, va_b));
 }
 
-#include<stdio.h>
-
 // simd, sub from constant, .bmp, 8 bits per channel, no pipeline
 void simd_subi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
