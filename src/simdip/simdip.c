@@ -137,8 +137,8 @@ static uint64_t process_opt(args_t* args){
                         case OP_NEG:    simd_neg_bmp_8bpc   (rgb_ptrs);                  break;
                         case OP_GS:     simd_gs_bmp_8bpc    (rgb_ptrs);                  break;
 
-                        case OP_KERN: break;
-                        case OP_WR:   break;
+                        case OP_KERN:   break;
+                        case OP_WR:     break;
                     }
                 }
                 end_s = s;

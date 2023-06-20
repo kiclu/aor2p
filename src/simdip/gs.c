@@ -40,6 +40,10 @@ void simd_gs_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     }
 }
 
+static inline uint8_t _gs(uint8_t r, uint8_t g, uint8_t b){
+    return r * 0.299f + g * 0.587f + b * 0.114f;
+}
+
 // simd, convert to grayscale, .bmp, 8 bits per channel, no pipeline
 void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
@@ -53,15 +57,7 @@ void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
         }
 
         for(; j < imgfile->width; ++j){
-            uint8_t gs = (
-                imgfile->imgdata._8bpc.r[i][j] * 0.299f +
-                imgfile->imgdata._8bpc.g[i][j] * 0.587f +
-                imgfile->imgdata._8bpc.b[i][j] * 0.114f
-            );
-
-            imgfile->imgdata._8bpc.r[i][j] = gs;
-            imgfile->imgdata._8bpc.g[i][j] = gs;
-            imgfile->imgdata._8bpc.b[i][j] = gs;
+            ptr_r[j] = ptr_g[j] = ptr_b[j] = _gs(ptr_r[j], ptr_g[j], ptr_b[j]);
         }
     }
 }
@@ -70,12 +66,11 @@ void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
 void gs_bmp_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            uint8_t gs = (
-                imgfile->imgdata._8bpc.r[i][j] * 0.299f +
-                imgfile->imgdata._8bpc.g[i][j] * 0.587f +
-                imgfile->imgdata._8bpc.b[i][j] * 0.114f
+            uint8_t gs = _gs(
+                imgfile->imgdata._8bpc.r[i][j],
+                imgfile->imgdata._8bpc.g[i][j],
+                imgfile->imgdata._8bpc.b[i][j]
             );
-
             imgfile->imgdata._8bpc.r[i][j] = gs;
             imgfile->imgdata._8bpc.g[i][j] = gs;
             imgfile->imgdata._8bpc.b[i][j] = gs;

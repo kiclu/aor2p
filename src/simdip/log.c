@@ -46,6 +46,8 @@ void simd_log_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
 
 #include<math.h>
 
+inline int log2i(int x){ return log(x) / log(2); }
+
 // simd, log, .bmp, 8 bits per channel, no pipeline
 void simd_log_bmp_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
@@ -59,12 +61,12 @@ void simd_log_bmp_8bpc_npl(imgfile_t* imgfile){
         }
 
         for(; j < imgfile->width; ++j){
-
+            ptr_r[j] = log2i(ptr_r[j]);
+            ptr_g[j] = log2i(ptr_g[j]);
+            ptr_b[j] = log2i(ptr_b[j]);
         }
     }
 }
-
-inline int log2i(int x){ return log(x) / log(2); }
 
 // no simd, log, .bmp, 8 bits per channel, no pipeline
 void log_bmp_8bpc_npl(imgfile_t* imgfile){

@@ -29,7 +29,9 @@ void simd_add_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
         }
 
         for(; j < imgfile->width; ++j){
-            *ptr_r++ += c; *ptr_g++ += c; *ptr_b++ += c;
+            ptr_r[j] += c;
+            ptr_g[j] += c;
+            ptr_b[j] += c;
         }
     }
 }

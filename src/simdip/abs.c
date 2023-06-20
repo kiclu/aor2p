@@ -30,9 +30,9 @@ void simd_abs_bmp_8bpc_npl(imgfile_t* imgfile){
         }
 
         for(; j < imgfile->width; ++j){
-            *ptr_r++ = _abs(*ptr_r);
-            *ptr_g++ = _abs(*ptr_g);
-            *ptr_b++ = _abs(*ptr_b);
+            ptr_r[j] = _abs(ptr_r[j]);
+            ptr_g[j] = _abs(ptr_g[j]);
+            ptr_b[j] = _abs(ptr_b[j]);
         }
     }
 }

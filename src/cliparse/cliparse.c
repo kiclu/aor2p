@@ -30,7 +30,7 @@ static void insert_op_kernel(pnode_t** chain, op_t op, const char* filename){
     }
     FILE* fin = fopen(filename, "r");
     if(NULL == fin){
-        printf("aor2p: error: kernel file not found");
+        fprintf(stderr, "aor2p: error: kernel file not found");
         free(t);
         return;
         // TODO: handle kernel file not found
@@ -238,6 +238,9 @@ args_t* cliparse(int argc, const char** argv){
     }
 
 #ifdef  SIMDIP_VERBOSE
+    printf("==================================================\n");
+    printf("FILTERS:\n");
+    printf("--------------------------------------------------\n");
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
             case OP_ADD:   printf("op_add");   break;
@@ -266,12 +269,16 @@ args_t* cliparse(int argc, const char** argv){
         }
 
         switch(i->type){
-            case op_const:  printf(" %d | ", i->arg.op_const); break;
-            case op_kern:   printf(" %lux%lu | ", i->arg.op_kern.n, i->arg.op_kern.m); break;
-            case op_fileio: printf(" %s | ", i->arg.op_fileio); break;
-            case op_noarg:  printf(" | "); break;
+            case op_const:  printf(" %d", i->arg.op_const); break;
+            case op_kern:   printf(" %lux%lu", i->arg.op_kern.n, i->arg.op_kern.m); break;
+            case op_fileio: printf(" %s", i->arg.op_fileio); break;
+            case op_noarg:  break;
         }
+        if(i->next) printf(" | ");
     }
+    printf("\n");
+    printf("==================================================\n");
+    printf("\n");
 #endif//SIMDIP_VERBOSE
 
     return args;

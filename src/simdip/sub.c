@@ -29,7 +29,9 @@ void simd_sub_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
         }
 
         for(; j < imgfile->width; ++j){
-            *ptr_r++ -= c; *ptr_g++ -= c; *ptr_b++ -= c;
+            ptr_r[j] -= c;
+            ptr_g[j] -= c;
+            ptr_b[j] -= c;
         }
     }
 }
@@ -38,9 +40,9 @@ void simd_sub_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 void sub_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(uint32_t i = 0; i < imgfile->height; ++i){
         for(uint32_t j = 0; j < imgfile->width; ++j){
-            imgfile->imgdata._8bpc.r[i] -= c;
-            imgfile->imgdata._8bpc.g[i] -= c;
-            imgfile->imgdata._8bpc.b[i] -= c;
+            imgfile->imgdata._8bpc.r[i][j] -= c;
+            imgfile->imgdata._8bpc.g[i][j] -= c;
+            imgfile->imgdata._8bpc.b[i][j] -= c;
         }
     }
 }

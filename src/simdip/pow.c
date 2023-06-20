@@ -17,9 +17,7 @@ void simd_pow_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c
         __m256i vres_r = _mm256_set1_epi16(1);
         __m256i vpow_r = va_r;
         for(uint8_t pc = c; pc; pc >>= 1){
-            if(pc & 0b1){
-                vres_r = _mm256_mullo_epi16(vres_r, vpow_r);
-            }
+            if(pc & 0b1) vres_r = _mm256_mullo_epi16(vres_r, vpow_r);
             vpow_r = _mm256_mullo_epi16(vpow_r, vpow_r);
         }
 
@@ -32,9 +30,7 @@ void simd_pow_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c
         __m256i vres_g = _mm256_set1_epi16(1);
         __m256i vpow_g = va_g;
         for(uint8_t pc = c; pc; pc >>= 1){
-            if(pc & 0b1){
-                vres_g = _mm256_mullo_epi16(vres_g, vpow_g);
-            }
+            if(pc & 0b1) vres_g = _mm256_mullo_epi16(vres_g, vpow_g);
             vpow_g = _mm256_mullo_epi16(vpow_g, vpow_g);
         }
 
@@ -47,9 +43,7 @@ void simd_pow_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c
         __m256i vres_b = _mm256_set1_epi16(1);
         __m256i vpow_b = va_b;
         for(uint8_t pc = c; pc; pc >>= 1){
-            if(pc & 0b1){
-                vres_b = _mm256_mullo_epi16(vres_b, vpow_b);
-            }
+            if(pc & 0b1) vres_b = _mm256_mullo_epi16(vres_b, vpow_b);
             vpow_b = _mm256_mullo_epi16(vpow_b, vpow_b);
         }
 
@@ -76,9 +70,9 @@ void simd_pow_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
         }
 
         for(; j < imgfile->width; ++j){
-            *ptr_r++ *= pow(*ptr_r, c);
-            *ptr_g++ *= pow(*ptr_g, c);
-            *ptr_b++ *= pow(*ptr_b, c);
+            ptr_r[j] = pow(ptr_r[j], c);
+            ptr_g[j] = pow(ptr_g[j], c);
+            ptr_b[j] = pow(ptr_b[j], c);
         }
     }
 }

@@ -31,9 +31,9 @@ void simd_subi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
         }
         
         for(; j < imgfile->width; ++j){
-            *ptr_r++ = c - *ptr_r;
-            *ptr_g++ = c - *ptr_g;
-            *ptr_b++ = c - *ptr_b;
+            ptr_r[j] = c - ptr_r[j];
+            ptr_g[j] = c - ptr_g[j];
+            ptr_b[j] = c - ptr_b[j];
         }
     }
 }

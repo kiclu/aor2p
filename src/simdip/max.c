@@ -7,15 +7,15 @@ replace every pixel of image with maximum its value and constant
 
 // simd, max, .bmp, 8 bits per channel, pipeline
 void simd_max_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
-    // __m256i va_r = _mm256_load_si256((__m256i*)ptr_r);
-    // __m256i va_g = _mm256_load_si256((__m256i*)ptr_g);
-    // __m256i va_b = _mm256_load_si256((__m256i*)ptr_b);
-    // __m256i vc = _mm256_set1_epi8(c);
-    // __m256i vm;
-
-    
-
+    __m256i vres_r = _mm256_max_epu8(_mm256_load_si256((__m256i*)ptr_r), _mm256_set1_epi8(c));
+    __m256i vres_g = _mm256_max_epu8(_mm256_load_si256((__m256i*)ptr_g), _mm256_set1_epi8(c));
+    __m256i vres_b = _mm256_max_epu8(_mm256_load_si256((__m256i*)ptr_b), _mm256_set1_epi8(c));
+    _mm256_store_si256((__m256i*)ptr_r, vres_r);
+    _mm256_store_si256((__m256i*)ptr_g, vres_g);
+    _mm256_store_si256((__m256i*)ptr_b, vres_b);
 }
+
+inline uint8_t max(uint8_t a, uint8_t b){ return a > b ? a : b; }
 
 // simd, max, .bmp, 8 bits per channel, no pipeline
 void simd_max_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
@@ -30,9 +30,9 @@ void simd_max_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
         }
 
         for(; j < imgfile->width; ++j){
-            *ptr_r++ = *ptr_r > c ? *ptr_r : c;
-            *ptr_g++ = *ptr_g > c ? *ptr_g : c;
-            *ptr_b++ = *ptr_b > c ? *ptr_b : c;
+            ptr_r[j] = max(ptr_r[j], c);
+            ptr_g[j] = max(ptr_g[j], c);
+            ptr_b[j] = max(ptr_b[j], c);
         }
     }
 }
@@ -41,13 +41,9 @@ void simd_max_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 void max_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            uint8_t r = imgfile->imgdata._8bpc.r[i][j];
-            uint8_t g = imgfile->imgdata._8bpc.g[i][j];
-            uint8_t b = imgfile->imgdata._8bpc.b[i][j];
-
-            imgfile->imgdata._8bpc.r[i][j] = r > c ? r : c;
-            imgfile->imgdata._8bpc.g[i][j] = g > c ? g : c;
-            imgfile->imgdata._8bpc.b[i][j] = b > c ? b : c;
+            imgfile->imgdata._8bpc.r[i][j] = max(imgfile->imgdata._8bpc.r[i][j], c);
+            imgfile->imgdata._8bpc.g[i][j] = max(imgfile->imgdata._8bpc.g[i][j], c);
+            imgfile->imgdata._8bpc.b[i][j] = max(imgfile->imgdata._8bpc.b[i][j], c);
         }
     }
 }

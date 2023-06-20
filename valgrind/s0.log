@@ -1,0 +1,22 @@
+op_log | op_pow 2 | op_mul 2 | op_gs | op_adds 128 | op_abs | op_neg | op_subs 60 | op_wr output.bmp | time taken: 6475896500ns
+ote et al.
+==1921== Using Valgrind-3.16.1 and LibVEX; rerun with -h for copyright info
+==1921== Command: ./aor2p res/gouldian_finch.bmp -l -p=2 -m=2 -gs -as=128 --abs --neg -ss=60 -o=output.bmp -s0
+==1921== 
+--1921-- warning: L3 cache found, using its data for the LL simulation.
+==1921== 
+==1921== I   refs:      855,052,105
+==1921== I1  misses:          1,521
+==1921== LLi misses:          1,517
+==1921== I1  miss rate:        0.00%
+==1921== LLi miss rate:        0.00%
+==1921== 
+==1921== D   refs:      332,508,511  (282,516,689 rd   + 49,991,822 wr)
+==1921== D1  misses:        732,370  (    575,336 rd   +    157,034 wr)
+==1921== LLd misses:        273,107  (    117,043 rd   +    156,064 wr)
+==1921== D1  miss rate:         0.2% (        0.2%     +        0.3%  )
+==1921== LLd miss rate:         0.1% (        0.0%     +        0.3%  )
+==1921== 
+==1921== LL refs:           733,891  (    576,857 rd   +    157,034 wr)
+==1921== LL misses:         274,624  (    118,560 rd   +    156,064 wr)
+==1921== LL miss rate:          0.0% (        0.0%     +        0.3%  )
