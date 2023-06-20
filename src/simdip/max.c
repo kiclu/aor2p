@@ -15,7 +15,7 @@ void simd_max_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c
     _mm256_store_si256((__m256i*)ptr_b, vres_b);
 }
 
-inline uint8_t max(uint8_t a, uint8_t b){ return a > b ? a : b; }
+static inline uint8_t max(uint8_t a, uint8_t b){ return a > b ? a : b; }
 
 // simd, max, .bmp, 8 bits per channel, no pipeline
 void simd_max_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){

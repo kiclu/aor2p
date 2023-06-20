@@ -18,7 +18,7 @@ void simd_min_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c
     _mm256_store_si256((__m256i*)ptr_b, vres_b);
 }
 
-inline uint8_t min(uint8_t a, uint8_t b){ return a < b ? a : b; }
+static inline uint8_t min(uint8_t a, uint8_t b){ return a < b ? a : b; }
 
 // simd, min, .bmp, 8 bits per channel, no pipeline
 void simd_min_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){

@@ -46,7 +46,7 @@ void simd_log_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
 
 #include<math.h>
 
-inline int log2i(int x){ return log(x) / log(2); }
+static inline int log2i(int x){ return log(x) / log(2); }
 
 // simd, log, .bmp, 8 bits per channel, no pipeline
 void simd_log_bmp_8bpc_npl(imgfile_t* imgfile){

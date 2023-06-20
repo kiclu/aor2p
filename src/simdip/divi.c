@@ -40,6 +40,10 @@ void simd_divi_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t 
     }
 }
 
+static inline uint8_t _divi(uint8_t a, uint8_t b){
+    return b ? a / b : 0;
+}
+
 // simd, divide constant by pixel, .bmp, 8 bits per channel, no pipeline
 void simd_divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
@@ -53,9 +57,9 @@ void simd_divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
         }
 
         for(; j < imgfile->width; ++j){
-            ptr_r[j] = c / ptr_r[j];
-            ptr_g[j] = c / ptr_g[j];
-            ptr_b[j] = c / ptr_b[j];
+            ptr_r[j] = _divi(c, ptr_r[j]);
+            ptr_g[j] = _divi(c, ptr_g[j]);
+            ptr_b[j] = _divi(c, ptr_b[j]);
         }
     }
 }
@@ -64,9 +68,9 @@ void simd_divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 void divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            imgfile->imgdata._8bpc.g[i][j] = c / imgfile->imgdata._8bpc.r[i][j];
-            imgfile->imgdata._8bpc.g[i][j] = c / imgfile->imgdata._8bpc.g[i][j];
-            imgfile->imgdata._8bpc.b[i][j] = c / imgfile->imgdata._8bpc.b[i][j];
+            imgfile->imgdata._8bpc.r[i][j] = _divi(c, imgfile->imgdata._8bpc.r[i][j]);
+            imgfile->imgdata._8bpc.g[i][j] = _divi(c, imgfile->imgdata._8bpc.g[i][j]);
+            imgfile->imgdata._8bpc.b[i][j] = _divi(c, imgfile->imgdata._8bpc.b[i][j]);
         }
     }
 }
