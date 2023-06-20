@@ -99,8 +99,32 @@ ___
 `-s0` - no optimizations\
 `-s2` - SIMD, no pipeline\
 `-s3` - SIMD & pipeline, default
-## 3. TODO
+## 3. Performance
+Time taken for a single operation on 1280x838 sample image, averaged over 10 tests.
+
+| op    | t avg simd[ns] | t avg nosimd[ns] | relative |
+| ----- | -------------- | ---------------- | -------- |
+| add   | 432,600        | 8,136,710        | 18.80x   |
+| sub   | 440,040        | 9,116,060        | 20.72x   |
+| subi  | 476,710        | 7,725,080        | 16.20x   |
+| mul   | 5,755,840      | 7,071,650        |  1.23x   |
+| div   | 3,228,610      | 1,593,305        |  4.93x   |
+| divi  |                |                  |          |
+| adds  | 558,080        | 8,159,120        | 14.62x   |
+| subs  | 501,950        | 8,236,660        | 16.41x   |
+| subis |                |                  |          |
+| pow   | 8,453,210      | 5,940,076        |  7.03x   |
+| log   | 2,629,490      | 2,707,579        | 10.30x   |
+| abs   |                |                  |          |
+| min   | 497,350        | 6,366,710        | 12.80x   |
+| max   | 415,930        | 6,475,020        | 15.57x   |
+| neg   | 488,930        | 7,619,170        | 15.58x   |
+| gs    | 2,635,800      | 7,465,570        |  2.83x   |
+| kern  |                |                  |          |
+
+## 4. TODO
 - [ ] implement kern
-- [ ] implement min/max
+- [x] implement min/max
 - [x] implement mul
 - [ ] implement subis
+- [ ] add zero guard for divi
