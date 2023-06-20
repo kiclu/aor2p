@@ -115,7 +115,7 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 | subis |                |                  |          |
 | pow   | 8,453,210      | 5,940,076        |  7.03x   |
 | log   | 2,629,490      | 2,707,579        | 10.30x   |
-| abs   |                |                  |          |
+| abs   | 480,580        | 7,703,620        | 16.03x   |
 | min   | 497,350        | 6,366,710        | 12.80x   |
 | max   | 415,930        | 6,475,020        | 15.57x   |
 | neg   | 488,930        | 7,619,170        | 15.58x   |
@@ -127,4 +127,4 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 - [x] implement min/max
 - [x] implement mul
 - [ ] implement subis
-- [ ] add zero guard for divi
+- [x] add zero guard for divi
