@@ -33,8 +33,8 @@ void simd_log_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
 
         // evil floating point bit hack
         __m256i logva_r = _mm256_sub_epi32(_mm256_srli_epi32((__m256i)fva_r, 23), c);
-        __m256i logva_g = _mm256_sub_epi32(_mm256_srli_epi32((__m256i)fva_b, 23), c);
-        __m256i logva_b = _mm256_sub_epi32(_mm256_srli_epi32((__m256i)fva_g, 23), c);
+        __m256i logva_g = _mm256_sub_epi32(_mm256_srli_epi32((__m256i)fva_g, 23), c);
+        __m256i logva_b = _mm256_sub_epi32(_mm256_srli_epi32((__m256i)fva_b, 23), c);
 
         for(size_t i = 0; i < 8; ++i){
             ptr_r[k+i] = *((uint8_t*)&logva_r + (i << 2));
