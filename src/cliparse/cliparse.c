@@ -266,10 +266,10 @@ args_t* cliparse(int argc, const char** argv){
         }
 
         switch(i->type){
-            case op_const:  printf(" %d\n", i->arg.op_const); break;
-            case op_kern:   printf(" %lux%lu\n", i->arg.op_kern.n, i->arg.op_kern.m); break;
-            case op_fileio: printf(" %s\n", i->arg.op_fileio); break;
-            case op_noarg:  printf("\n"); break;
+            case op_const:  printf(" %d | ", i->arg.op_const); break;
+            case op_kern:   printf(" %lux%lu | ", i->arg.op_kern.n, i->arg.op_kern.m); break;
+            case op_fileio: printf(" %s | ", i->arg.op_fileio); break;
+            case op_noarg:  printf(" | "); break;
         }
     }
 #endif//SIMDIP_VERBOSE
