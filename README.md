@@ -2,58 +2,59 @@
 ## 1. Description
 
 ## 2. Functions / command line arguments
+Usage: `./aor2p input-file [options]`
 ### 2.1. Basic arithmetic operations
 **2.1.1.  Arithmetic add**\
 `px[r,g,b] <= px[r,g,b] + c`\
 \
-`-a=const.` / `--add=const.`
+`-a=<const>` / `--add=<const>`
 ___
 **2.1.2.  Arithmetic sub**\
 `px[r,g,b] <= px[r,g,b] - c`\
 \
-`-s=const.` / `--sub=const.`
+`-s=<const>` / `--sub=<const>`
 ___
 **2.1.3.  Arithmetic inverse sub**\
 `px[r,g,b] <= c - px[r,g,b]`\
 \
-`-is=const.` / `--isub=const.`
+`-is=<const>` / `--isub=<const>`
 ___
 **2.1.4.  Arithmetic mul**\
 `px[r,g,b] <= px[r,g,b] * c`\
 \
-`-m=const.` / `--mul=const.`
+`-m=<const>` / `--mul=<const>`
 ___
 **2.1.5.  Arithmetic div**\
 `px[r,g,b] <= px[r,g,b] / c`\
 \
-`-d=const.` / `--div=const.`
+`-d=<const>` / `--div=<const>`
 ___
 **2.1.7.  Arithmetic inverse div**\
 `px[r,g,b] <= c / px[r,g,b]`\
 \
-`-id=const.` / `--idiv=const.`
+`-id=<const>` / `--idiv=<const>`
 ___
 ### 2.2. Arithmetic operations with saturation
 **2.2.1. Add with saturation**\
 `px[r,g,b] <= px[r,g,b] + c > PX_MAX ? PX_MAX : px[r,g,b] + c`\
 \
-`-as=const.` / `--add-saturate=const.`
+`-as=<const>` / `--add-saturate=<const>`
 ___
 **2.2.2. Sub with saturation**\
 `px[r,g,b] <= px[r,g,b] - c < 0 ? 0 : px[r,g,b] - c`\
 \
-`-ss=const.` / `--sub-saturate=const.`
+`-ss=<const>` / `--sub-saturate=<const>`
 ___
 **2.2.3. Inverse sub with saturation**\
 `px[r,g,b] <= c - px[r,g,b] < 0 ? 0 : c - px[r,g,b]`\
 \
-`-iss=const.` / `--isub-saturate=const.`
+`-iss=<const>` / `--isub-saturate=<const>`
 ___
 ### 2.3. Misc arithmetic operations
 **2.3.1.  Pow**\
 `px[r,g,b] <= px[r,g,b]**c`\
 \
-`-p=const.` / `--pow=const.`
+`-p=<const>` / `--pow=<const>`
 ___
 **2.3.2.  Log**\
 `px[r,g,b] <= log2(px[r,g,b])`\
@@ -68,12 +69,12 @@ ___
 **2.3.4.  Min**\
 `px[r,g,b] <= min(px[r,g,b], c)`\
 \
-`--min=const.`
+`--min=<const>`
 ___
 **2.3.5.  Max**\
 `px[r,g,b] <= max(px[r,g,b], c)`\
 \
-`--max=const.`
+`--max=<const>`
 ___
 ### 2.4. Image processing
 **2.4.1.  Negative**\
@@ -90,7 +91,7 @@ ___
 //
 ___
 ### 2.6. File operations
-`-o=output_file`
+`-o=<file>`
 ___
 ### 2.7. Optimization level
 `--no-pipeline`\
