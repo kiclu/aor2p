@@ -124,7 +124,4 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 
 ## 4. TODO
 - [ ] implement kern
-- [x] implement min/max
-- [x] implement mul
-- [x] implement subis
-- [x] add zero guard for divi
+- [ ] add support for png
