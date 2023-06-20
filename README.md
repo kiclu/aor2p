@@ -101,5 +101,5 @@ ___
 ## 3. TODO
 - [ ] implement kern
 - [ ] implement min/max
-- [ ] implement mul
+- [x] implement mul
 - [ ] implement subis
