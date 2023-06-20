@@ -112,7 +112,7 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 | divi  | 2,797,220      | 13,873,760       |  4.96x   |
 | adds  | 558,080        | 8,159,120        | 14.62x   |
 | subs  | 501,950        | 8,236,660        | 16.41x   |
-| subis |                |                  |          |
+| subis | 568,220        | 6,982,600        | 12.29x   |
 | pow   | 8,453,210      | 5,940,076        |  7.03x   |
 | log   | 2,629,490      | 2,707,579        | 10.30x   |
 | abs   | 480,580        | 7,703,620        | 16.03x   |
@@ -126,5 +126,5 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 - [ ] implement kern
 - [x] implement min/max
 - [x] implement mul
-- [ ] implement subis
+- [x] implement subis
 - [x] add zero guard for divi
