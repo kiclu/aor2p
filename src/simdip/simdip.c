@@ -166,6 +166,7 @@ static uint64_t process_opt(args_t* args){
 #else
 
 #include<pthread.h>
+#include<semaphore.h>
 
 typedef struct{
     size_t thread_id;
@@ -173,6 +174,9 @@ typedef struct{
     size_t ei;
     args_t* args;
     uint64_t time;
+
+    sem_t* write_entry_sem;
+    sem_t* write_exit_sem;
 } process_worker_arg_t;
 
 void* process_opt_mt_worker(void* arg){
@@ -228,9 +232,17 @@ void* process_opt_mt_worker(void* arg){
         }
 
         if(end_s && OP_WR == end_s->op){
-            struct timespec write_start_time = timer_start();
-            if(warg->thread_id == 0) img_fwrite(args->imgfile, end_s->arg.op_fileio);
-            write_time += timer_end(write_start_time);
+            if(warg->thread_id == 0){
+                struct timespec write_start_time = timer_start();
+                for(size_t i = 0; i < THREAD_COUNT - 1; ++i) sem_wait(warg->write_entry_sem);
+                img_fwrite(args->imgfile, end_s->arg.op_fileio);
+                for(size_t i = 0; i < THREAD_COUNT - 1; ++i) sem_post(warg->write_exit_sem);
+                write_time += timer_end(write_start_time);
+            }
+            else{
+                sem_post(warg->write_entry_sem);
+                sem_wait(warg->write_exit_sem);
+            }
         }
 
         start_s = end_s->next;
@@ -244,7 +256,11 @@ void* process_opt_mt_worker(void* arg){
 
 static uint64_t process_opt_mt(args_t* args){
     struct timespec start_time = timer_start();
-    uint64_t write_time = 0;
+
+    sem_t write_entry_sem;
+    sem_t write_exit_sem;
+    sem_init(&write_entry_sem, 0, THREAD_COUNT - 1);
+    sem_init(&write_exit_sem, 0, 0);
 
     process_worker_arg_t warg[THREAD_COUNT];
     for(size_t i = 0; i < THREAD_COUNT; ++i){
@@ -252,6 +268,8 @@ static uint64_t process_opt_mt(args_t* args){
         warg[i].si = (args->imgfile->height / THREAD_COUNT) * i;
         warg[i].ei = (args->imgfile->height / THREAD_COUNT) * (i+1);
         warg[i].args = args;
+        warg[i].write_entry_sem = &write_entry_sem;
+        warg[i].write_exit_sem = &write_exit_sem;
     }
     warg[THREAD_COUNT-1].ei = args->imgfile->height;
 
