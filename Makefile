@@ -34,8 +34,14 @@ SOURCES = $(shell find . -name "*.c" -printf "%P ")
 vpath %.c $(sort $(dir ${SOURCES}))
 
 all:
-	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -DSIMDIP_VERBOSE
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE
 
+all_pt4:
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=4
+
+all_pt8:
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=8
+	
 run_s0:
 	./aor2p ${IMG_SOURCE} ${SIGNAL_CHAIN} -s0
 
