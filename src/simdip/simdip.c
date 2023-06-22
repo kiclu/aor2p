@@ -23,27 +23,27 @@ static uint64_t process_ns_np(args_t* args){
     uint64_t write_time = 0;
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
-            case OP_ADD:    add_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_SUB:    sub_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_ISUB:   subi_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
-            case OP_MUL:    mul_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_DIV:    div_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_IDIV:   divi_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_ADD:    add_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_SUB:    sub_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_ISUB:   subi_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_MUL:    mul_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_DIV:    div_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_IDIV:   divi_8bpc_npl  (args->imgfile, i->arg.op_const); break;
 
-            case OP_ADDS:   adds_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
-            case OP_SUBS:   subs_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
-            case OP_ISUBS:  subis_bmp_8bpc_npl (args->imgfile, i->arg.op_const); break;
+            case OP_ADDS:   adds_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_SUBS:   subs_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_ISUBS:  subis_8bpc_npl (args->imgfile, i->arg.op_const); break;
 
-            case OP_POW:    pow_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_LOG:    log_bmp_8bpc_npl   (args->imgfile);                  break;
-            case OP_ABS:    abs_bmp_8bpc_npl   (args->imgfile);                  break;
-            case OP_MIN:    min_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_MAX:    max_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_POW:    pow_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_LOG:    log_8bpc_npl   (args->imgfile);                  break;
+            case OP_ABS:    abs_8bpc_npl   (args->imgfile);                  break;
+            case OP_MIN:    min_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_MAX:    max_8bpc_npl   (args->imgfile, i->arg.op_const); break;
 
-            case OP_NEG:    neg_bmp_8bpc_npl   (args->imgfile);                  break;
-            case OP_GS:     gs_bmp_8bpc_npl    (args->imgfile);                  break;
+            case OP_NEG:    neg_8bpc_npl   (args->imgfile);                  break;
+            case OP_GS:     gs_8bpc_npl    (args->imgfile);                  break;
 
-            case OP_KERN:   kern_bmp_8bpc_npl  (args->imgfile, i->arg.op_kern);  break;
+            case OP_KERN:   kern_8bpc_npl  (args->imgfile, i->arg.op_kern);  break;
 
             case OP_WR:{
                 struct timespec write_start_time = timer_start();
@@ -66,27 +66,27 @@ static uint64_t process_np(args_t* args){
     uint64_t write_time = 0;
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
-            case OP_ADD:    simd_add_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_SUB:    simd_sub_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_ISUB:   simd_subi_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
-            case OP_MUL:    simd_mul_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_DIV:    simd_div_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_IDIV:   simd_divi_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_ADD:    simd_add_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_SUB:    simd_sub_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_ISUB:   simd_subi_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_MUL:    simd_mul_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_DIV:    simd_div_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_IDIV:   simd_divi_8bpc_npl  (args->imgfile, i->arg.op_const); break;
 
-            case OP_ADDS:   simd_adds_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
-            case OP_SUBS:   simd_subs_bmp_8bpc_npl  (args->imgfile, i->arg.op_const); break;
-            case OP_ISUBS:  simd_subis_bmp_8bpc_npl (args->imgfile, i->arg.op_const); break;
+            case OP_ADDS:   simd_adds_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_SUBS:   simd_subs_8bpc_npl  (args->imgfile, i->arg.op_const); break;
+            case OP_ISUBS:  simd_subis_8bpc_npl (args->imgfile, i->arg.op_const); break;
 
-            case OP_POW:    simd_pow_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_LOG:    simd_log_bmp_8bpc_npl   (args->imgfile);                  break;
-            case OP_ABS:    simd_abs_bmp_8bpc_npl   (args->imgfile);                  break;
-            case OP_MIN:    simd_min_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
-            case OP_MAX:    simd_max_bmp_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_POW:    simd_pow_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_LOG:    simd_log_8bpc_npl   (args->imgfile);                  break;
+            case OP_ABS:    simd_abs_8bpc_npl   (args->imgfile);                  break;
+            case OP_MIN:    simd_min_8bpc_npl   (args->imgfile, i->arg.op_const); break;
+            case OP_MAX:    simd_max_8bpc_npl   (args->imgfile, i->arg.op_const); break;
 
-            case OP_NEG:    simd_neg_bmp_8bpc_npl   (args->imgfile);                  break;
-            case OP_GS:     simd_gs_bmp_8bpc_npl    (args->imgfile);                  break;
+            case OP_NEG:    simd_neg_8bpc_npl   (args->imgfile);                  break;
+            case OP_GS:     simd_gs_8bpc_npl    (args->imgfile);                  break;
 
-            case OP_KERN:   simd_kern_bmp_8bpc_npl  (args->imgfile, i->arg.op_kern);  break;
+            case OP_KERN:   simd_kern_8bpc_npl  (args->imgfile, i->arg.op_kern);  break;
 
             case OP_WR:{
                 struct timespec write_start_time = timer_start();
@@ -118,25 +118,25 @@ static uint64_t process_opt(args_t* args){
                 pnode_t* s = start_s;
                 for(; s && OP_WR != s->op && OP_KERN != s->op; s = s->next){
                     switch(s->op){
-                        case OP_ADD:    simd_add_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUB:    simd_sub_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUB:   simd_subi_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MUL:    simd_mul_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_DIV:    simd_div_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_IDIV:   simd_divi_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADD:    simd_add_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_SUB:    simd_sub_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ISUB:   simd_subi_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_MUL:    simd_mul_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_DIV:    simd_div_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_IDIV:   simd_divi_8bpc  (rgb_ptrs, s->arg.op_const); break;
 
-                        case OP_ADDS:   simd_adds_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUBS:   simd_subs_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUBS:  simd_subis_bmp_8bpc (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADDS:   simd_adds_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_SUBS:   simd_subs_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ISUBS:  simd_subis_8bpc (rgb_ptrs, s->arg.op_const); break;
 
-                        case OP_POW:    simd_pow_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_LOG:    simd_log_bmp_8bpc   (rgb_ptrs);                  break;
-                        case OP_ABS:    simd_abs_bmp_8bpc   (rgb_ptrs);                  break;
-                        case OP_MIN:    simd_min_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MAX:    simd_max_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_POW:    simd_pow_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_LOG:    simd_log_8bpc   (rgb_ptrs);                  break;
+                        case OP_ABS:    simd_abs_8bpc   (rgb_ptrs);                  break;
+                        case OP_MIN:    simd_min_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_MAX:    simd_max_8bpc   (rgb_ptrs, s->arg.op_const); break;
 
-                        case OP_NEG:    simd_neg_bmp_8bpc   (rgb_ptrs);                  break;
-                        case OP_GS:     simd_gs_bmp_8bpc    (rgb_ptrs);                  break;
+                        case OP_NEG:    simd_neg_8bpc   (rgb_ptrs);                  break;
+                        case OP_GS:     simd_gs_8bpc    (rgb_ptrs);                  break;
 
                         case OP_KERN:   break;
                         case OP_WR:     break;
@@ -148,7 +148,7 @@ static uint64_t process_opt(args_t* args){
         }
 
         if(end_s && OP_KERN == end_s->op){
-            simd_kern_bmp_8bpc_npl(args->imgfile, end_s->arg.op_kern);
+            simd_kern_8bpc_npl(args->imgfile, end_s->arg.op_kern);
         }
 
         if(end_s && OP_WR == end_s->op){
@@ -207,25 +207,25 @@ void* process_opt_mt_worker(void* arg){
                 pnode_t* s = start_s;
                 for(; s && OP_WR != s->op && OP_KERN != s->op; s = s->next){
                     switch(s->op){
-                        case OP_ADD:    simd_add_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUB:    simd_sub_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUB:   simd_subi_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MUL:    simd_mul_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_DIV:    simd_div_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_IDIV:   simd_divi_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADD:    simd_add_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_SUB:    simd_sub_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ISUB:   simd_subi_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_MUL:    simd_mul_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_DIV:    simd_div_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_IDIV:   simd_divi_8bpc  (rgb_ptrs, s->arg.op_const); break;
 
-                        case OP_ADDS:   simd_adds_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUBS:   simd_subs_bmp_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUBS:  simd_subis_bmp_8bpc (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADDS:   simd_adds_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_SUBS:   simd_subs_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ISUBS:  simd_subis_8bpc (rgb_ptrs, s->arg.op_const); break;
 
-                        case OP_POW:    simd_pow_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_LOG:    simd_log_bmp_8bpc   (rgb_ptrs);                  break;
-                        case OP_ABS:    simd_abs_bmp_8bpc   (rgb_ptrs);                  break;
-                        case OP_MIN:    simd_min_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MAX:    simd_max_bmp_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_POW:    simd_pow_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_LOG:    simd_log_8bpc   (rgb_ptrs);                  break;
+                        case OP_ABS:    simd_abs_8bpc   (rgb_ptrs);                  break;
+                        case OP_MIN:    simd_min_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_MAX:    simd_max_8bpc   (rgb_ptrs, s->arg.op_const); break;
 
-                        case OP_NEG:    simd_neg_bmp_8bpc   (rgb_ptrs);                  break;
-                        case OP_GS:     simd_gs_bmp_8bpc    (rgb_ptrs);                  break;
+                        case OP_NEG:    simd_neg_8bpc   (rgb_ptrs);                  break;
+                        case OP_GS:     simd_gs_8bpc    (rgb_ptrs);                  break;
 
                         case OP_KERN:   break;
                         case OP_WR:     break;
@@ -250,7 +250,7 @@ void* process_opt_mt_worker(void* arg){
                 }
 
                 // kernel operation
-                simd_kern_bmp_8bpc_npl(args->imgfile, end_s->arg.op_kern);
+                simd_kern_8bpc_npl(args->imgfile, end_s->arg.op_kern);
 
                 // signal to other threads that kernel operation is done
                 sem_wait(warg->barrier_kexit_mutex);

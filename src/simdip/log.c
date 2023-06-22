@@ -7,8 +7,8 @@ replace every pixel of image with its logarithm
 
 // https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-// simd, log, .bmp, 8 bits per channel, pipeline
-void simd_log_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
+// simd, log, 8 bits per channel, pipeline
+void simd_log_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     for(size_t k = 0; k < 32; k += 8){
         __m256 fva_r = _mm256_setr_ps(
             ptr_r[k+0], ptr_r[k+1], ptr_r[k+2], ptr_r[k+3],
@@ -44,8 +44,8 @@ void simd_log_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
 
 static inline int log2i(int x){ return log(x) / log(2); }
 
-// simd, log, .bmp, 8 bits per channel, no pipeline
-void simd_log_bmp_8bpc_npl(imgfile_t* imgfile){
+// simd, log, 8 bits per channel, no pipeline
+void simd_log_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
         uint8_t* ptr_r = imgfile->imgdata._8bpc.r[i];
         uint8_t* ptr_g = imgfile->imgdata._8bpc.g[i];
@@ -53,7 +53,7 @@ void simd_log_bmp_8bpc_npl(imgfile_t* imgfile){
 
         size_t j = 0;
         for(j = 0; j < (imgfile->width & ~0x1F); j += 32){
-            simd_log_bmp_8bpc(ptr_r, ptr_g, ptr_b);
+            simd_log_8bpc(ptr_r, ptr_g, ptr_b);
         }
 
         for(; j < imgfile->width; ++j){
@@ -64,8 +64,8 @@ void simd_log_bmp_8bpc_npl(imgfile_t* imgfile){
     }
 }
 
-// no simd, log, .bmp, 8 bits per channel, no pipeline
-void log_bmp_8bpc_npl(imgfile_t* imgfile){
+// no simd, log, 8 bits per channel, no pipeline
+void log_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
             imgfile->imgdata._8bpc.r[i][j] = log2i(imgfile->imgdata._8bpc.r[i][j]);

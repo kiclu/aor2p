@@ -5,8 +5,8 @@ OP_MUL
 multiply every pixel of image by constant
 */
 
-// simd, multiply by constant, .bmp, 8 bits per channel, pipeline
-void simd_mul_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
+// simd, multiply by constant, 8 bits per channel, pipeline
+void simd_mul_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i va_r[] = {
         _mm256_inserti128_si256(
             _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)ptr_r))),
@@ -56,8 +56,8 @@ void simd_mul_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c
     _mm256_store_si256((__m256i*)ptr_b, vres_b);
 }
 
-// simd, multiply by constant, .bmp, 8 bits per channel, no pipeline
-void simd_mul_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
+// simd, multiply by constant, 8 bits per channel, no pipeline
+void simd_mul_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
         uint8_t* ptr_r = imgfile->imgdata._8bpc.r[i];
         uint8_t* ptr_g = imgfile->imgdata._8bpc.g[i];
@@ -65,7 +65,7 @@ void simd_mul_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
         size_t j = 0;
         for(j = 0; j < (imgfile->width & ~0x1F); j += 32){
-            simd_mul_bmp_8bpc(ptr_r, ptr_b, ptr_g, c);
+            simd_mul_8bpc(ptr_r, ptr_b, ptr_g, c);
         }
 
         for(; j < imgfile->width; ++j){
@@ -76,8 +76,8 @@ void simd_mul_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     }
 }
 
-// no simd, multiply by constant, .bmp, 8 bits per channel, no pipeline
-void mul_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
+// no simd, multiply by constant, 8 bits per channel, no pipeline
+void mul_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
             imgfile->imgdata._8bpc.r[i][j] *= c;

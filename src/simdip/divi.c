@@ -5,8 +5,8 @@ OP_DIVI
 divide constant by every pixel in the image
 */
 
-// simd, divide constant by pixel, .bmp, 8 bits per channel, pipeline
-void simd_divi_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
+// simd, divide constant by pixel, 8 bits per channel, pipeline
+void simd_divi_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     for(uint32_t k = 0; k < 32; k += 8){
         __m256 fva_r = _mm256_cvtepi32_ps(
             _mm256_setr_epi32(
@@ -44,8 +44,8 @@ static inline uint8_t _divi(uint8_t a, uint8_t b){
     return b ? a / b : 0;
 }
 
-// simd, divide constant by pixel, .bmp, 8 bits per channel, no pipeline
-void simd_divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
+// simd, divide constant by pixel, 8 bits per channel, no pipeline
+void simd_divi_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
         uint8_t* ptr_r = imgfile->imgdata._8bpc.r[i];
         uint8_t* ptr_g = imgfile->imgdata._8bpc.g[i];
@@ -53,7 +53,7 @@ void simd_divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
         size_t j = 0;
         for(j = 0; j < (imgfile->width & ~0x1F); j += 32){
-            simd_div_bmp_8bpc(ptr_r, ptr_b, ptr_g, c);
+            simd_div_8bpc(ptr_r, ptr_b, ptr_g, c);
         }
 
         for(; j < imgfile->width; ++j){
@@ -64,8 +64,8 @@ void simd_divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     }
 }
 
-// no simd, divide constant by pixel, .bmp, 8 bits per channel, no pipeline
-void divi_bmp_8bpc_npl(imgfile_t* imgfile, uint8_t c){
+// no simd, divide constant by pixel, 8 bits per channel, no pipeline
+void divi_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
             imgfile->imgdata._8bpc.r[i][j] = _divi(c, imgfile->imgdata._8bpc.r[i][j]);

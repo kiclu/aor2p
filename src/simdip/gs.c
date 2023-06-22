@@ -1,7 +1,7 @@
 #include<simdip/gs.h>
 
-// simd, convert to grayscale, .bmp, 8 bits per channel, pipeline
-void simd_gs_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
+// simd, convert to grayscale, 8 bits per channel, pipeline
+void simd_gs_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     for(uint32_t k = 0; k < 32; k += 8){
         __m256 vr = _mm256_setr_ps(
             ptr_r[k+0], ptr_r[k+1], ptr_r[k+2], ptr_r[k+3],
@@ -38,8 +38,8 @@ static inline uint8_t _gs(uint8_t r, uint8_t g, uint8_t b){
     return r * 0.299f + g * 0.587f + b * 0.114f;
 }
 
-// simd, convert to grayscale, .bmp, 8 bits per channel, no pipeline
-void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
+// simd, convert to grayscale, 8 bits per channel, no pipeline
+void simd_gs_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
         uint8_t* ptr_r = imgfile->imgdata._8bpc.r[i];
         uint8_t* ptr_g = imgfile->imgdata._8bpc.g[i];
@@ -47,7 +47,7 @@ void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
 
         size_t j = 0;
         for(; j < (imgfile->width & ~0x1F); j += 32){
-            simd_gs_bmp_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
+            simd_gs_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
         }
 
         for(; j < imgfile->width; ++j){
@@ -56,8 +56,8 @@ void simd_gs_bmp_8bpc_npl(imgfile_t* imgfile){
     }
 }
 
-// no simd, convert to grayscale, .bmp, 8 bits per channel, no pipeline
-void gs_bmp_8bpc_npl(imgfile_t* imgfile){
+// no simd, convert to grayscale, 8 bits per channel, no pipeline
+void gs_8bpc_npl(imgfile_t* imgfile){
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
             uint8_t gs = _gs(
