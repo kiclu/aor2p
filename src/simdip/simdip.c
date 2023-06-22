@@ -260,7 +260,7 @@ void* process_opt_mt_worker(void* arg){
             else{
                 // signal thread_id 0 that this thread is waiting for kernel operation
                 sem_wait(warg->barrier_kentry_mutex);
-                ++(*warg->barrier_kentry_val);
+                ++*warg->barrier_kentry_val;
                 sem_post(warg->barrier_kentry_mutex);
 
                 // wait for thread_id 0 to finish kernel operation
