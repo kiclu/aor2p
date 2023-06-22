@@ -5,6 +5,8 @@ OP_LOG
 replace every pixel of image with its logarithm
 */
 
+// https://en.wikipedia.org/wiki/Fast_inverse_square_root
+
 // simd, log, .bmp, 8 bits per channel, pipeline
 void simd_log_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     for(size_t k = 0; k < 32; k += 8){

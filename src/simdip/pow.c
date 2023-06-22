@@ -5,54 +5,80 @@ OP_POW
 raise every pixel of image to power of constant
 */
 
+// https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+
 // simd, pow, .bmp, 8 bits per channel, pipeline
 void simd_pow_bmp_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
-    for(size_t k = 0; k < 32; k += 16){
-        __m256i va_r = _mm256_setr_epi16(
-            ptr_r[k+0],  ptr_r[k+1],  ptr_r[k+2],  ptr_r[k+3],
-            ptr_r[k+4],  ptr_r[k+5],  ptr_r[k+6],  ptr_r[k+7],
-            ptr_r[k+8],  ptr_r[k+9],  ptr_r[k+10], ptr_r[k+11],
-            ptr_r[k+12], ptr_r[k+13], ptr_r[k+14], ptr_r[k+15]
-        );
-        __m256i vres_r = _mm256_set1_epi16(1);
-        __m256i vpow_r = va_r;
-        for(uint8_t pc = c; pc; pc >>= 1){
-            if(pc & 0b1) vres_r = _mm256_mullo_epi16(vres_r, vpow_r);
-            vpow_r = _mm256_mullo_epi16(vpow_r, vpow_r);
+    __m256i va_r[] = {
+        _mm256_inserti128_si256(
+            _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)ptr_r))),
+            _mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_r + 16))), 1
+        ),
+        _mm256_inserti128_si256(
+            _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_r + 8)))),
+            _mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_r + 24))), 1
+        )
+    };
+    __m256i vres_r[] = {_mm256_set1_epi16(1), _mm256_set1_epi16(1)};
+    __m256i vpow_r[] = {va_r[0], va_r[1]};
+    for(uint8_t pc = c; pc; pc >>= 1){
+        if(pc & 0b1){
+            vres_r[0] = _mm256_mullo_epi16(vres_r[0], vpow_r[0]);
+            vres_r[1] = _mm256_mullo_epi16(vres_r[1], vpow_r[1]);
         }
 
-        __m256i va_g = _mm256_setr_epi16(
-            ptr_g[k+0],  ptr_g[k+1],  ptr_g[k+2],  ptr_g[k+3],
-            ptr_g[k+4],  ptr_g[k+5],  ptr_g[k+6],  ptr_g[k+7],
-            ptr_g[k+8],  ptr_g[k+9],  ptr_g[k+10], ptr_g[k+11],
-            ptr_g[k+12], ptr_g[k+13], ptr_g[k+14], ptr_g[k+15]
-        );
-        __m256i vres_g = _mm256_set1_epi16(1);
-        __m256i vpow_g = va_g;
-        for(uint8_t pc = c; pc; pc >>= 1){
-            if(pc & 0b1) vres_g = _mm256_mullo_epi16(vres_g, vpow_g);
-            vpow_g = _mm256_mullo_epi16(vpow_g, vpow_g);
-        }
-
-        __m256i va_b = _mm256_setr_epi16(
-            ptr_b[k+0],  ptr_b[k+1],  ptr_b[k+2],  ptr_b[k+3],
-            ptr_b[k+4],  ptr_b[k+5],  ptr_b[k+6],  ptr_b[k+7],
-            ptr_b[k+8],  ptr_b[k+9],  ptr_b[k+10], ptr_b[k+11],
-            ptr_b[k+12], ptr_b[k+13], ptr_b[k+14], ptr_b[k+15]
-        );
-        __m256i vres_b = _mm256_set1_epi16(1);
-        __m256i vpow_b = va_b;
-        for(uint8_t pc = c; pc; pc >>= 1){
-            if(pc & 0b1) vres_b = _mm256_mullo_epi16(vres_b, vpow_b);
-            vpow_b = _mm256_mullo_epi16(vpow_b, vpow_b);
-        }
-
-        for(size_t i = 0; i < 16; ++i){
-            ptr_r[k+i] = *((uint8_t*)&vres_r + (i << 1));
-            ptr_g[k+i] = *((uint8_t*)&vres_g + (i << 1));
-            ptr_b[k+i] = *((uint8_t*)&vres_b + (i << 1));
-        }
+        vpow_r[0] = _mm256_mullo_epi16(vpow_r[0], vpow_r[0]);
+        vpow_r[1] = _mm256_mullo_epi16(vpow_r[1], vpow_r[1]);
     }
+    _mm256_store_si256((__m256i*)ptr_r, _mm256_packus_epi16(vres_r[0], vres_r[1]));
+
+
+    __m256i va_g[] = {
+        _mm256_inserti128_si256(
+            _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)ptr_g))),
+            _mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_g + 16))), 1
+        ),
+        _mm256_inserti128_si256(
+            _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_g + 8)))),
+            _mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_g + 24))), 1
+        )
+    };
+    __m256i vres_g[] = {_mm256_set1_epi16(1), _mm256_set1_epi16(1)};
+    __m256i vpow_g[] = {va_g[0], va_g[1]};
+    for(uint8_t pc = c; pc; pc >>= 1){
+        if(pc & 0b1){
+            vres_g[0] = _mm256_mullo_epi16(vres_g[0], vpow_g[0]);
+            vres_g[1] = _mm256_mullo_epi16(vres_g[1], vpow_g[1]);
+        }
+
+        vpow_g[0] = _mm256_mullo_epi16(vpow_g[0], vpow_g[0]);
+        vpow_g[1] = _mm256_mullo_epi16(vpow_g[1], vpow_g[1]);
+    }
+    _mm256_store_si256((__m256i*)ptr_g, _mm256_packus_epi16(vres_g[0], vres_g[1]));
+
+
+    __m256i va_b[] = {
+        _mm256_inserti128_si256(
+            _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)ptr_b))),
+            _mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_b + 16))), 1
+        ),
+        _mm256_inserti128_si256(
+            _mm256_castsi128_si256(_mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_b + 8)))),
+            _mm_cvtepu8_epi16(_mm_loadu_si128((__m128i*)(ptr_b + 24))), 1
+        )
+    };
+    __m256i vres_b[] = {_mm256_set1_epi16(1), _mm256_set1_epi16(1)};
+    __m256i vpow_b[] = {va_b[0], va_b[1]};
+    for(uint8_t pc = c; pc; pc >>= 1){
+        if(pc & 0b1){
+            vres_b[0] = _mm256_mullo_epi16(vres_b[0], vpow_b[0]);
+            vres_b[1] = _mm256_mullo_epi16(vres_b[1], vpow_b[1]);
+        }
+
+        vpow_b[0] = _mm256_mullo_epi16(vpow_b[0], vpow_b[0]);
+        vpow_b[1] = _mm256_mullo_epi16(vpow_b[1], vpow_b[1]);
+    }
+    _mm256_store_si256((__m256i*)ptr_b, _mm256_packus_epi16(vres_b[0], vres_b[1]));
 }
 
 #include<math.h>

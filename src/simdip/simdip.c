@@ -175,8 +175,11 @@ typedef struct{
     args_t* args;
     uint64_t time;
 
-    sem_t* write_entry_sem;
-    sem_t* write_exit_sem;
+    sem_t* barrier_wentry_mutex;
+    size_t* barrier_wentry_val;
+
+    sem_t* barrier_wexit_mutex;
+    size_t* barrier_wexit_val;
 } process_worker_arg_t;
 
 void* process_opt_mt_worker(void* arg){
@@ -234,14 +237,44 @@ void* process_opt_mt_worker(void* arg){
         if(end_s && OP_WR == end_s->op){
             if(warg->thread_id == 0){
                 struct timespec write_start_time = timer_start();
-                for(size_t i = 0; i < THREAD_COUNT - 1; ++i) sem_wait(warg->write_entry_sem);
+
+                // wait for all other threads to finish all work before writing
+                for(;;){
+                    sem_wait(warg->barrier_wentry_mutex);
+                    if((*warg->barrier_wentry_val) == THREAD_COUNT - 1){
+                        *warg->barrier_wentry_val = 0;
+                        sem_post(warg->barrier_wentry_mutex);
+                        break;
+                    }
+                    sem_post(warg->barrier_wentry_mutex);
+                }
+
+                // write
                 img_fwrite(args->imgfile, end_s->arg.op_fileio);
-                for(size_t i = 0; i < THREAD_COUNT - 1; ++i) sem_post(warg->write_exit_sem);
+
+                // signal to other threads that output is done
+                sem_wait(warg->barrier_wexit_mutex);
+                *warg->barrier_wexit_val = THREAD_COUNT - 1;
+                sem_post(warg->barrier_wexit_mutex);
+
                 write_time += timer_end(write_start_time);
             }
             else{
-                sem_post(warg->write_entry_sem);
-                sem_wait(warg->write_exit_sem);
+                // signal thread_id 0 that this thread is waiting for file output
+                sem_wait(warg->barrier_wentry_mutex);
+                ++(*warg->barrier_wentry_val);
+                sem_post(warg->barrier_wentry_mutex);
+
+                // wait for thread_id 0 to finish file output
+                for(;;){
+                    sem_wait(warg->barrier_wexit_mutex);
+                    if(*warg->barrier_wexit_val > 0){
+                        --(*warg->barrier_wexit_val);
+                        sem_post(warg->barrier_wexit_mutex);
+                        break;
+                    }
+                    sem_post(warg->barrier_wexit_mutex);
+                }
             }
         }
 
@@ -257,10 +290,13 @@ void* process_opt_mt_worker(void* arg){
 static uint64_t process_opt_mt(args_t* args){
     struct timespec start_time = timer_start();
 
-    sem_t write_entry_sem;
-    sem_t write_exit_sem;
-    sem_init(&write_entry_sem, 0, THREAD_COUNT - 1);
-    sem_init(&write_exit_sem, 0, 0);
+    size_t barrier_wentry_val = 0;
+    sem_t barrier_wentry_mutex;
+    sem_init(&barrier_wentry_mutex, 0, 1);
+
+    sem_t barrier_wexit_mutex;
+    size_t barrier_wexit_val = 0;
+    sem_init(&barrier_wexit_mutex, 0, 1);
 
     process_worker_arg_t warg[THREAD_COUNT];
     for(size_t i = 0; i < THREAD_COUNT; ++i){
@@ -268,8 +304,12 @@ static uint64_t process_opt_mt(args_t* args){
         warg[i].si = (args->imgfile->height / THREAD_COUNT) * i;
         warg[i].ei = (args->imgfile->height / THREAD_COUNT) * (i+1);
         warg[i].args = args;
-        warg[i].write_entry_sem = &write_entry_sem;
-        warg[i].write_exit_sem = &write_exit_sem;
+
+        warg[i].barrier_wentry_val = &barrier_wentry_val;
+        warg[i].barrier_wentry_mutex = &barrier_wentry_mutex;
+
+        warg[i].barrier_wexit_val = &barrier_wexit_val;
+        warg[i].barrier_wexit_mutex = &barrier_wexit_mutex;
     }
     warg[THREAD_COUNT-1].ei = args->imgfile->height;
 
