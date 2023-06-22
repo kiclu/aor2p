@@ -16,66 +16,62 @@ static inline void _swap(ch_ptr_t* r, ch_ptr_t* kr){
     ch_ptr_t tmp = *r; *r = *kr; *kr = tmp;
 }
 
-static inline void simd_kern_8bpc(uint8_t** ptr_r, uint8_t** ptr_g, uint8_t** ptr_b, kern_t k, size_t i, size_t j){
-    __m256 vres_r = _mm256_set1_ps(0);
-    __m256 vres_g = _mm256_set1_ps(0);
-    __m256 vres_b = _mm256_set1_ps(0);
+static void simd_kern_8bpc(uint8_t** ptr_r, uint8_t** ptr_g, uint8_t** ptr_b, kern_t k, size_t i, size_t j){
+    __m256 vres_r = _mm256_setzero_ps();
+    __m256 vres_g = _mm256_setzero_ps();
+    __m256 vres_b = _mm256_setzero_ps();
 
     for(size_t ki = 0; ki < k.n; ++ki){
         for(size_t kj = 0; kj < k.m; ++kj){
-            vres_r = _mm256_add_ps(
-                _mm256_mul_ps(
-                    _mm256_cvtepi32_ps(
-                        _mm256_cvtepu8_epi32(
-                            _mm_lddqu_si128((__m128i*)&ptr_r[i+ki][j+kj])
-                        )
-                    ),
-                    _mm256_set1_ps(k.kern[ki][kj])
+            vres_r = _mm256_fmadd_ps(
+                _mm256_cvtepi32_ps(
+                    _mm256_cvtepu8_epi32(
+                        _mm_lddqu_si128((__m128i*)&ptr_r[i+ki][j+kj])
+                    )
                 ),
+                _mm256_set1_ps(k.kern[ki][kj]),
                 vres_r
             );
 
-            vres_g = _mm256_add_ps(
-                _mm256_mul_ps(
-                    _mm256_cvtepi32_ps(
-                        _mm256_cvtepu8_epi32(
-                            _mm_lddqu_si128((__m128i*)&ptr_g[i+ki][j+kj])
-                        )
-                    ),
-                    _mm256_set1_ps(k.kern[ki][kj])
+            vres_g = _mm256_fmadd_ps(
+                _mm256_cvtepi32_ps(
+                    _mm256_cvtepu8_epi32(
+                        _mm_lddqu_si128((__m128i*)&ptr_g[i+ki][j+kj])
+                    )
                 ),
+                _mm256_set1_ps(k.kern[ki][kj]),
                 vres_g
             );
 
-            vres_b = _mm256_add_ps(
-                _mm256_mul_ps(
-                    _mm256_cvtepi32_ps(
-                        _mm256_cvtepu8_epi32(
-                            _mm_lddqu_si128((__m128i*)&ptr_b[i+ki][j+kj])
-                        )
-                    ),
-                    _mm256_set1_ps(k.kern[ki][kj])
+            vres_b = _mm256_fmadd_ps(
+                _mm256_cvtepi32_ps(
+                    _mm256_cvtepu8_epi32(
+                        _mm_lddqu_si128((__m128i*)&ptr_b[i+ki][j+kj])
+                    )
                 ),
+                _mm256_set1_ps(k.kern[ki][kj]),
                 vres_b
             );
         }
     }
 
     vres_r = _mm256_min_ps(vres_r, _mm256_set1_ps(255));
-    vres_g = _mm256_min_ps(vres_g, _mm256_set1_ps(255));
-    vres_b = _mm256_min_ps(vres_b, _mm256_set1_ps(255));
     vres_r = _mm256_max_ps(vres_r, _mm256_set1_ps(0));
+    
+    vres_g = _mm256_min_ps(vres_g, _mm256_set1_ps(255));
     vres_g = _mm256_max_ps(vres_g, _mm256_set1_ps(0));
+
+    vres_b = _mm256_min_ps(vres_b, _mm256_set1_ps(255));
     vres_b = _mm256_max_ps(vres_b, _mm256_set1_ps(0));
 
-    __m256i ivres_r = _mm256_cvtps_epi32(vres_r);
-    __m256i ivres_g = _mm256_cvtps_epi32(vres_g);
-    __m256i ivres_b = _mm256_cvtps_epi32(vres_b);
+    float* ar = (float*)&vres_r;
+    float* ag = (float*)&vres_g;
+    float* ab = (float*)&vres_b;
 
     for(size_t ri = 0; ri < 8; ++ri){
-        kr[i + k.n/2][j + k.m/2 + ri] = *((uint8_t*)&ivres_r + (ri << 2));
-        kg[i + k.n/2][j + k.m/2 + ri] = *((uint8_t*)&ivres_g + (ri << 2));
-        kb[i + k.n/2][j + k.m/2 + ri] = *((uint8_t*)&ivres_b + (ri << 2));
+        kr[i + k.n/2][j + k.m/2 + ri] = ar[ri];
+        kg[i + k.n/2][j + k.m/2 + ri] = ag[ri];
+        kb[i + k.n/2][j + k.m/2 + ri] = ab[ri];
     }
 }
 
