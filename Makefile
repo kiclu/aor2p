@@ -12,7 +12,7 @@ LD      = ${TOOLPREFIX}ld
 OBJCOPY = ${TOOLPREFIX}objcopy
 OBJDUMP = ${TOOLPREFIX}objdump
 
-SIGNAL_CHAIN = -l -p=2 -m=2 -gs -as=128 --abs --neg -ss=60 -o=output.bmp
+SIGNAL_CHAIN = -l -p=2 -m=2 -gs -as=128 --neg -l -p=2 -m=2 -gs -as=128 --neg -o=output.bmp
 
 IMG_SOURCE = res/gouldian_finch.bmp
 
@@ -36,12 +36,15 @@ vpath %.c $(sort $(dir ${SOURCES}))
 all:
 	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE
 
+all_pt2:
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=2
+
 all_pt4:
 	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=4
 
 all_pt8:
 	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=8
-	
+
 run_s0:
 	./aor2p ${IMG_SOURCE} ${SIGNAL_CHAIN} -s0
 

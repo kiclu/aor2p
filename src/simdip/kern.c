@@ -25,6 +25,8 @@ static inline int8_t _adds(int8_t a, int8_t b){
     return a + b;
 }
 
+#include<stdio.h>
+
 // no simd, apply kernel to pixel, .bmp, 8 bits per channel, no pipeline
 void kern_bmp_8bpc_npl(imgfile_t* imgfile, kern_t k){
     size_t n = k.n;

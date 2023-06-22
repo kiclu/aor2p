@@ -7,6 +7,11 @@
 #include<stdbool.h>
 #include<stdlib.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include<stb/stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include<stb/stb_image_write.h>
+
 void img_print_info(imgfile_t* imgfile){
     printf("==================================================\n");
     printf("IMAGE INFO:\n");
@@ -18,36 +23,93 @@ void img_print_info(imgfile_t* imgfile){
     printf("==================================================\n");
 }
 
-// TODO: implement
-imgfile_t* img_fread_png(const char* filename){
-    return NULL;
+static imgfile_t* img_fread_png(const char* filename){
+    imgfile_t* imgfile = (imgfile_t*)malloc(sizeof(imgfile_t));
+    imgfile->filetype = PNG;
+    imgfile->filename = (char*)malloc(strlen(filename) + 1);
+    strcpy(imgfile->filename, filename);
+
+    int h, w, c;
+    if(NULL == (imgfile->img = stbi_load(filename, &h, &w, &c, 4))){
+        // TODO: handle image load failed
+        // free(imgfile-filename);
+        return NULL;
+    }
+    
+    imgfile->height = h;
+    imgfile->width = w;
+    imgfile->channels = c;
+    imgfile->bit_depth = 32;
+
+    imgfile->imgdata._8bpc.r = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+    imgfile->imgdata._8bpc.g = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+    imgfile->imgdata._8bpc.b = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+
+    imgfile->imgdata._8bpc.a = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+
+    for(size_t i = 0; i < imgfile->height; ++i){
+        imgfile->imgdata._8bpc.r[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        imgfile->imgdata._8bpc.g[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        imgfile->imgdata._8bpc.b[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        
+        imgfile->imgdata._8bpc.a[i] = (uint8_t*)malloc(imgfile->width * sizeof(uint8_t));
+    }
+
+    size_t k = 0;
+    for(size_t i = 0; i < imgfile->height; ++i){
+        for(size_t j = 0; j < imgfile->width; ++j){
+            imgfile->imgdata._8bpc.r[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.g[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.b[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.a[i][j] = imgfile->img[k++];
+        }
+    }
+
+    return imgfile;
 }
 
-imgfile_t* img_fread_bmp(const char* filename){
+static imgfile_t* img_fread_bmp(const char* filename){
     imgfile_t* imgfile = (imgfile_t*)malloc(sizeof(imgfile_t));
     imgfile->filetype = BMP;
     imgfile->filename = (char*)malloc(strlen(filename) + 1);
     strcpy(imgfile->filename, filename);
-    bmp_img_read(&imgfile->img.bmp, filename);
-    imgfile->width = imgfile->img.bmp.img_header.biWidth;
-    imgfile->height = imgfile->img.bmp.img_header.biHeight - 1;
-    imgfile->bit_depth = imgfile->img.bmp.img_header.biBitCount;
-    if(imgfile->bit_depth == 24){
-        imgfile->imgdata._8bpc.r = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
-        imgfile->imgdata._8bpc.g = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
-        imgfile->imgdata._8bpc.b = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
 
-        for(size_t i = 0; i < imgfile->height; ++i){
-            imgfile->imgdata._8bpc.r[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
-            imgfile->imgdata._8bpc.g[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
-            imgfile->imgdata._8bpc.b[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
-            for(size_t j = 0; j < imgfile->width; ++j){
-                imgfile->imgdata._8bpc.b[i][j] = imgfile->img.bmp.img_pixels[i][j].blue;
-                imgfile->imgdata._8bpc.g[i][j] = imgfile->img.bmp.img_pixels[i][j].green;
-                imgfile->imgdata._8bpc.r[i][j] = imgfile->img.bmp.img_pixels[i][j].red;
-            }
+    int h, w, c;
+    if(NULL == (imgfile->img = stbi_load(filename, &h, &w, &c, 4))){
+        // TODO: handle image load failed
+        // free(imgfile-filename);
+        return NULL;
+    }
+    
+    imgfile->height = h;
+    imgfile->width = w;
+    imgfile->channels = c;
+    imgfile->bit_depth = 32;
+
+    imgfile->imgdata._8bpc.r = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+    imgfile->imgdata._8bpc.g = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+    imgfile->imgdata._8bpc.b = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+
+    imgfile->imgdata._8bpc.a = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
+
+    for(size_t i = 0; i < imgfile->height; ++i){
+        imgfile->imgdata._8bpc.r[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        imgfile->imgdata._8bpc.g[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        imgfile->imgdata._8bpc.b[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        
+        imgfile->imgdata._8bpc.a[i] = (uint8_t*)malloc(imgfile->width * sizeof(uint8_t));
+    }
+
+    size_t k = 0;
+    for(size_t i = 0; i < imgfile->height; ++i){
+        for(size_t j = 0; j < imgfile->width; ++j){
+            imgfile->imgdata._8bpc.r[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.g[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.b[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.a[i][j] = imgfile->img[k++];
         }
     }
+
     return imgfile;
 }
 
@@ -77,20 +139,33 @@ imgfile_t* img_fread(const char* filename){
     return NULL;
 }
 
-// TODO: implement
-int img_fwrite_png(imgfile_t* imgfile, const char* filename){
-    return -1;
-}
-
-int img_fwrite_bmp(imgfile_t* imgfile, const char* filename){
+static uint8_t* make_buffer(imgfile_t* imgfile){
+    uint8_t* buffer = (uint8_t*)malloc(4 * imgfile->width * imgfile->height * sizeof(uint8_t));
+    size_t k = 0;
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            imgfile->img.bmp.img_pixels[i][j].blue = imgfile->imgdata._8bpc.b[i][j];
-            imgfile->img.bmp.img_pixels[i][j].green = imgfile->imgdata._8bpc.g[i][j];
-            imgfile->img.bmp.img_pixels[i][j].red = imgfile->imgdata._8bpc.r[i][j];
+            buffer[k++] = imgfile->imgdata._8bpc.r[i][j];
+            buffer[k++] = imgfile->imgdata._8bpc.g[i][j];
+            buffer[k++] = imgfile->imgdata._8bpc.b[i][j];
+            buffer[k++] = imgfile->imgdata._8bpc.a[i][j];
         }
     }
-    return bmp_img_write(&imgfile->img.bmp, filename);
+    return buffer;
+}
+
+// TODO: implement
+static int img_fwrite_png(imgfile_t* imgfile, const char* filename){
+    uint8_t* buffer = make_buffer(imgfile);
+    stbi_write_png(filename, imgfile->height, imgfile->width, 4, buffer, 0);
+    free(buffer);
+    return 0;
+}
+
+static int img_fwrite_bmp(imgfile_t* imgfile, const char* filename){
+    uint8_t* buffer = make_buffer(imgfile);
+    stbi_write_bmp(filename, imgfile->height, imgfile->width, 4, buffer);
+    free(buffer);
+    return 0;
 }
 
 int img_fwrite(imgfile_t* imgfile, const char* filename){
@@ -120,7 +195,7 @@ int img_fwrite(imgfile_t* imgfile, const char* filename){
 }
 
 void img_free(imgfile_t* imgfile){
-    if(imgfile->filetype == BMP) bmp_img_free(&imgfile->img.bmp);
+    // if(imgfile->filetype == BMP) bmp_img_free(&imgfile->img.bmp);
 
     for(uint32_t i = 0; i < imgfile->height; ++i){
         free(imgfile->imgdata._8bpc.r[i]);

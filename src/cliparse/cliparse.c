@@ -2,6 +2,7 @@
 
 #include<string.h>
 #include<stdbool.h>
+#include<stdio.h>
 
 static void insert_op_const(pnode_t** chain, op_t op, int arg){
     pnode_t* t = malloc(sizeof(pnode_t));

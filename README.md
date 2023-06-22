@@ -124,4 +124,4 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 
 ## 4. TODO
 - [ ] implement kern
-- [ ] add support for png
+- [x] add support for png
