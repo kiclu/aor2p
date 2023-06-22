@@ -13,6 +13,7 @@ OBJCOPY = ${TOOLPREFIX}objcopy
 OBJDUMP = ${TOOLPREFIX}objdump
 
 SIGNAL_CHAIN = -l -p=2 -m=2 -gs -as=128 --neg -l -p=2 -m=2 -gs -as=128 --neg -o=output.bmp
+SIGNAL_CHAIN2 = -l -p=2 -m=2 -as=100 -d=2 -gs -o=output.bmp
 
 IMG_SOURCE = res/gouldian_finch.bmp
 
@@ -44,6 +45,9 @@ all_pt4:
 
 all_pt8:
 	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=8
+
+all_pt32:
+	${CC} -g ${CFLAGS} -o ${TARGET} ${SOURCES} -lm -pthread -DSIMDIP_VERBOSE -DTHREAD_COUNT=32
 
 run_s0:
 	./aor2p ${IMG_SOURCE} ${SIGNAL_CHAIN} -s0
@@ -78,6 +82,7 @@ clean:
 	rm -f ${TARGET}
 	rm -f *.bmp
 	rm -f *.jpg
+	rm -f *.png
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.

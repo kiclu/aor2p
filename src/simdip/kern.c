@@ -19,10 +19,16 @@ void simd_kern_bmp_8bpc_npl(imgfile_t* imgfile, kern_t k){
     }
 }
 
-static inline int8_t _adds(int8_t a, int8_t b){
-    if(a + b > 127) return 127;
-    if(a + b < 0) return 0;
-    return a + b;
+static inline uint8_t _adds(uint8_t** p, size_t i, size_t j, kern_t k){
+    float sum = 0;
+    for(size_t di = 0; di < 3; ++di){
+        for(size_t dj = 0; dj < 3; ++dj){
+            sum += p[i + di][j + dj] * k.kern[di][dj];
+        }
+    }
+    if(sum >= 255.f) return 255;
+    if(sum < 0) return 0;
+    return (uint8_t)sum;
 }
 
 #include<stdio.h>
@@ -39,26 +45,21 @@ void kern_bmp_8bpc_npl(imgfile_t* imgfile, kern_t k){
         printf("\n");
     }
 
-    int8_t** r = (int8_t**)malloc(imgfile->height * sizeof(int8_t*));
-    int8_t** g = (int8_t**)malloc(imgfile->height * sizeof(int8_t*));
-    int8_t** b = (int8_t**)malloc(imgfile->height * sizeof(int8_t*));
+    uint8_t** r = (uint8_t**)malloc(imgfile->height * sizeof(int8_t*));
+    uint8_t** g = (uint8_t**)malloc(imgfile->height * sizeof(int8_t*));
+    uint8_t** b = (uint8_t**)malloc(imgfile->height * sizeof(int8_t*));
     if(NULL == r || NULL == g || NULL == b) printf("!");
     for(size_t i = 0; i < imgfile->height; ++i){
-        r[i] = (int8_t*)malloc(imgfile->width * sizeof(int8_t));
-        g[i] = (int8_t*)malloc(imgfile->width * sizeof(int8_t));
-        b[i] = (int8_t*)malloc(imgfile->width * sizeof(int8_t));
-        if(NULL == r[i] || NULL == g[i] || NULL == b[i]) printf("!");
+        r[i] = (uint8_t*)malloc(imgfile->width * sizeof(int8_t));
+        g[i] = (uint8_t*)malloc(imgfile->width * sizeof(int8_t));
+        b[i] = (uint8_t*)malloc(imgfile->width * sizeof(int8_t));
     }
 
-    for(size_t i = n/2; i < imgfile->height - n/2; ++i){
-        for(size_t j = m/2; j < imgfile->width - m/2; ++j){
-            for(size_t di = 0; di < n; ++di){
-                for(size_t dj = 0; dj < m; ++dj){
-                    r[i][j] = _adds(r[i][j], imgfile->imgdata._8bpc.r[i+di-n/2][j+dj-m/2] * k.kern[di][dj]);
-                    g[i][j] = _adds(g[i][j], imgfile->imgdata._8bpc.g[i+di-n/2][j+dj-m/2] * k.kern[di][dj]);
-                    b[i][j] = _adds(b[i][j], imgfile->imgdata._8bpc.b[i+di-n/2][j+dj-m/2] * k.kern[di][dj]);
-                }
-            }
+    for(size_t i = 0; i < imgfile->height - n; ++i){
+        for(size_t j = 0; j < imgfile->width - m; ++j){
+            r[i][j] = _adds(imgfile->imgdata._8bpc.r, i, j, k);
+            g[i][j] = _adds(imgfile->imgdata._8bpc.g, i, j, k);
+            b[i][j] = _adds(imgfile->imgdata._8bpc.b, i, j, k);
         }
     }
 

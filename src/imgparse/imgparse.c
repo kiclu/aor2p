@@ -153,7 +153,6 @@ static uint8_t* make_buffer(imgfile_t* imgfile){
     return buffer;
 }
 
-// TODO: implement
 static int img_fwrite_png(imgfile_t* imgfile, const char* filename){
     uint8_t* buffer = make_buffer(imgfile);
     stbi_write_png(filename, imgfile->height, imgfile->width, 4, buffer, 0);
