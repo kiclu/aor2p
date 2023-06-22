@@ -30,7 +30,7 @@ static imgfile_t* img_fread_png(const char* filename){
     strcpy(imgfile->filename, filename);
 
     int h, w, c;
-    if(NULL == (imgfile->img = stbi_load(filename, &h, &w, &c, 4))){
+    if(NULL == (imgfile->img = stbi_load(filename, &w, &h, &c, 4))){
         // TODO: handle image load failed
         // free(imgfile-filename);
         return NULL;
@@ -75,7 +75,7 @@ static imgfile_t* img_fread_bmp(const char* filename){
     strcpy(imgfile->filename, filename);
 
     int h, w, c;
-    if(NULL == (imgfile->img = stbi_load(filename, &h, &w, &c, 4))){
+    if(NULL == (imgfile->img = stbi_load(filename, &w, &h, &c, 4))){
         // TODO: handle image load failed
         // free(imgfile-filename);
         return NULL;
@@ -155,14 +155,14 @@ static uint8_t* make_buffer(imgfile_t* imgfile){
 
 static int img_fwrite_png(imgfile_t* imgfile, const char* filename){
     uint8_t* buffer = make_buffer(imgfile);
-    stbi_write_png(filename, imgfile->height, imgfile->width, 4, buffer, 0);
+    stbi_write_png(filename, imgfile->width, imgfile->height, 4, buffer, 0);
     free(buffer);
     return 0;
 }
 
 static int img_fwrite_bmp(imgfile_t* imgfile, const char* filename){
     uint8_t* buffer = make_buffer(imgfile);
-    stbi_write_bmp(filename, imgfile->height, imgfile->width, 4, buffer);
+    stbi_write_bmp(filename, imgfile->width, imgfile->height, 4, buffer);
     free(buffer);
     return 0;
 }
@@ -194,8 +194,6 @@ int img_fwrite(imgfile_t* imgfile, const char* filename){
 }
 
 void img_free(imgfile_t* imgfile){
-    // if(imgfile->filetype == BMP) bmp_img_free(&imgfile->img.bmp);
-
     for(uint32_t i = 0; i < imgfile->height; ++i){
         free(imgfile->imgdata._8bpc.r[i]);
         free(imgfile->imgdata._8bpc.g[i]);
