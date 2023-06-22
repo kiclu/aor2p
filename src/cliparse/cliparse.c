@@ -37,14 +37,14 @@ static void insert_op_kernel(pnode_t** chain, op_t op, const char* filename){
         // TODO: handle kernel file not found
     }
 
-    t->arg.op_kern.kern = (int8_t**)malloc(t->arg.op_kern.n * sizeof(int8_t*));
+    t->arg.op_kern.kern = (float**)malloc(t->arg.op_kern.n * sizeof(float*));
     for(size_t i = 0; i < t->arg.op_kern.n; ++i){
-        t->arg.op_kern.kern[i] = (int8_t*)malloc(t->arg.op_kern.m * sizeof(int8_t));
+        t->arg.op_kern.kern[i] = (float*)malloc(t->arg.op_kern.m * sizeof(float));
     }
 
     for(size_t i = 0; i < t->arg.op_kern.n; ++i){
         for(size_t j = 0; j < t->arg.op_kern.n; ++j){
-            fscanf(fin, "%hhd", &t->arg.op_kern.kern[i][j]);
+            fscanf(fin, "%f", &t->arg.op_kern.kern[i][j]);
         }
     }
     
@@ -226,6 +226,7 @@ args_t* cliparse(int argc, const char** argv){
         }
 
         if(argv[i] == strstr(argv[i], "-k=") || argv[i] == strstr(argv[i], "--kernel=")){
+            kern_init(args->imgfile->height, args->imgfile->width);
             insert_op_kernel(&args->signal_chain, OP_KERN, strchr(argv[i], '=') + 1);
             continue;
         }
@@ -294,4 +295,6 @@ void cliparse_free(args_t* args){
 
     img_free(args->imgfile);
     free(args);
+
+    kern_free();
 }
