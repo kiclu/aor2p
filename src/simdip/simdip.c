@@ -180,6 +180,12 @@ typedef struct{
 
     sem_t* barrier_wexit_mutex;
     size_t* barrier_wexit_val;
+
+    sem_t* barrier_kentry_mutex;
+    size_t* barrier_kentry_val;
+
+    sem_t* barrier_kexit_mutex;
+    size_t* barrier_kexit_val;
 } process_worker_arg_t;
 
 void* process_opt_mt_worker(void* arg){
@@ -231,7 +237,43 @@ void* process_opt_mt_worker(void* arg){
         }
 
         if(end_s && OP_KERN == end_s->op){
-            if(warg->thread_id == 0) simd_kern_bmp_8bpc_npl(args->imgfile, end_s->arg.op_kern);
+            if(warg->thread_id == 0){
+                // wait for all other threads to finish all work before kernel operation
+                for(;;){
+                    sem_wait(warg->barrier_kentry_mutex);
+                    if((*warg->barrier_kentry_val) == THREAD_COUNT - 1){
+                        *warg->barrier_kentry_val = 0;
+                        sem_post(warg->barrier_kentry_mutex);
+                        break;
+                    }
+                    sem_post(warg->barrier_kentry_mutex);
+                }
+
+                // kernel operation
+                simd_kern_bmp_8bpc_npl(args->imgfile, end_s->arg.op_kern);
+
+                // signal to other threads that kernel operation is done
+                sem_wait(warg->barrier_kexit_mutex);
+                *warg->barrier_kexit_val = THREAD_COUNT - 1;
+                sem_post(warg->barrier_kexit_mutex);
+            }
+            else{
+                // signal thread_id 0 that this thread is waiting for kernel operation
+                sem_wait(warg->barrier_kentry_mutex);
+                ++(*warg->barrier_kentry_val);
+                sem_post(warg->barrier_kentry_mutex);
+
+                // wait for thread_id 0 to finish kernel operation
+                for(;;){
+                    sem_wait(warg->barrier_kexit_mutex);
+                    if(*warg->barrier_kexit_val > 0){
+                        --(*warg->barrier_kexit_val);
+                        sem_post(warg->barrier_kexit_mutex);
+                        break;
+                    }
+                    sem_post(warg->barrier_kexit_mutex);
+                }
+            }
         }
 
         if(end_s && OP_WR == end_s->op){
@@ -241,7 +283,7 @@ void* process_opt_mt_worker(void* arg){
                 // wait for all other threads to finish all work before writing
                 for(;;){
                     sem_wait(warg->barrier_wentry_mutex);
-                    if((*warg->barrier_wentry_val) == THREAD_COUNT - 1){
+                    if(*warg->barrier_wentry_val == THREAD_COUNT - 1){
                         *warg->barrier_wentry_val = 0;
                         sem_post(warg->barrier_wentry_mutex);
                         break;
@@ -262,14 +304,14 @@ void* process_opt_mt_worker(void* arg){
             else{
                 // signal thread_id 0 that this thread is waiting for file output
                 sem_wait(warg->barrier_wentry_mutex);
-                ++(*warg->barrier_wentry_val);
+                ++*warg->barrier_wentry_val;
                 sem_post(warg->barrier_wentry_mutex);
 
                 // wait for thread_id 0 to finish file output
                 for(;;){
                     sem_wait(warg->barrier_wexit_mutex);
                     if(*warg->barrier_wexit_val > 0){
-                        --(*warg->barrier_wexit_val);
+                        --*warg->barrier_wexit_val;
                         sem_post(warg->barrier_wexit_mutex);
                         break;
                     }
@@ -298,6 +340,14 @@ static uint64_t process_opt_mt(args_t* args){
     size_t barrier_wexit_val = 0;
     sem_init(&barrier_wexit_mutex, 0, 1);
 
+    size_t barrier_kentry_val = 0;
+    sem_t barrier_kentry_mutex;
+    sem_init(&barrier_kentry_mutex, 0, 1);
+
+    size_t barrier_kexit_val = 0;
+    sem_t barrier_kexit_mutex;
+    sem_init(&barrier_kexit_mutex, 0, 1);
+
     process_worker_arg_t warg[THREAD_COUNT];
     for(size_t i = 0; i < THREAD_COUNT; ++i){
         warg[i].thread_id = i;
@@ -310,6 +360,12 @@ static uint64_t process_opt_mt(args_t* args){
 
         warg[i].barrier_wexit_val = &barrier_wexit_val;
         warg[i].barrier_wexit_mutex = &barrier_wexit_mutex;
+
+        warg[i].barrier_kentry_val = &barrier_kentry_val;
+        warg[i].barrier_kentry_mutex = &barrier_kentry_mutex;
+
+        warg[i].barrier_kexit_val = &barrier_kexit_val;
+        warg[i].barrier_kexit_mutex = &barrier_kexit_mutex;
     }
     warg[THREAD_COUNT-1].ei = args->imgfile->height;
 

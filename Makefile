@@ -83,6 +83,11 @@ clean:
 	rm -f *.bmp
 	rm -f *.jpg
 	rm -f *.png
+	rm -f benchmark/*.log
+	rm -f benchmark/*.bmp
+	rm -f benchmark/*.jpg
+	rm -f benchmark/*.png
+	
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.
