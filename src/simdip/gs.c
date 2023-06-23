@@ -3,33 +3,24 @@
 // simd, convert to grayscale, 8 bits per channel, pipeline
 void simd_gs_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     for(uint32_t k = 0; k < 32; k += 8){
-        __m256 vr = _mm256_setr_ps(
-            ptr_r[k+0], ptr_r[k+1], ptr_r[k+2], ptr_r[k+3],
-            ptr_r[k+4], ptr_r[k+5], ptr_r[k+6], ptr_r[k+7]
-        );
+        __m256 vr = _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r + k)));
 
         __m256 sum = _mm256_mul_ps(vr, _mm256_set1_ps(0.299));
 
-        __m256 vg = _mm256_setr_ps(
-            ptr_g[k+0], ptr_g[k+1], ptr_g[k+2], ptr_g[k+3],
-            ptr_g[k+4], ptr_g[k+5], ptr_g[k+6], ptr_g[k+7]
-        );
+        __m256 vg = _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g + k)));
 
         sum = _mm256_fmadd_ps(vg, _mm256_set1_ps(0.587), sum);
 
-        __m256 vb = _mm256_setr_ps(
-            ptr_b[k+0], ptr_b[k+1], ptr_b[k+2], ptr_b[k+3],
-            ptr_b[k+4], ptr_b[k+5], ptr_b[k+6], ptr_b[k+7]
-        );
+        __m256 vb = _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b + k)));
 
         sum = _mm256_fmadd_ps(vb, _mm256_set1_ps(0.114), sum);
 
         __m256i gs = _mm256_cvtps_epi32(sum);
 
+        float* ags = (float*)&gs;
+
         for(size_t i = 0; i < 8; ++i){
-            ptr_r[k+i] = *((uint8_t*)&gs + (i << 2));
-            ptr_g[k+i] = *((uint8_t*)&gs + (i << 2));
-            ptr_b[k+i] = *((uint8_t*)&gs + (i << 2));
+            ptr_r[k+i] = ptr_g[k+i] = ptr_b[k+i] = *ags;
         }
     }
 }
