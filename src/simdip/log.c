@@ -55,7 +55,6 @@ void simd_log_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     _mm256_store_si256((__m256i*)ptr_r, vres_r);
     _mm256_store_si256((__m256i*)ptr_g, vres_g);
     _mm256_store_si256((__m256i*)ptr_b, vres_b);
-
 }
 
 #include<math.h>
