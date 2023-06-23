@@ -2,27 +2,73 @@
 
 // simd, convert to grayscale, 8 bits per channel, pipeline
 void simd_gs_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
-    for(uint32_t k = 0; k < 32; k += 8){
-        __m256 vr = _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r + k)));
+    __m256 vr[] = {
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r+8))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r+16))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r+24)))
+    };
 
-        __m256 sum = _mm256_mul_ps(vr, _mm256_set1_ps(0.299));
+    __m256 vg[] = {
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g+8))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g+16))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g+24)))
+    };
 
-        __m256 vg = _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g + k)));
+    __m256 vb[] = {
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+8))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+16))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+24)))
+    };
 
-        sum = _mm256_fmadd_ps(vg, _mm256_set1_ps(0.587), sum);
+    __m256 sum[] = {
+        _mm256_fmadd_ps(
+            vb[0], _mm256_set1_ps(0.114),
+            _mm256_fmadd_ps(
+                vg[0], _mm256_set1_ps(0.587),
+                _mm256_mul_ps(vr[0], _mm256_set1_ps(0.299))
+            )
+        ),
+        _mm256_fmadd_ps(
+            vb[1], _mm256_set1_ps(0.114),
+            _mm256_fmadd_ps(
+                vg[1], _mm256_set1_ps(0.587),
+                _mm256_mul_ps(vr[1], _mm256_set1_ps(0.299))
+            )
+        ),
+        _mm256_fmadd_ps(
+            vb[2], _mm256_set1_ps(0.114),
+            _mm256_fmadd_ps(
+                vg[2], _mm256_set1_ps(0.587),
+                _mm256_mul_ps(vr[2], _mm256_set1_ps(0.299))
+            )
+        ),
+        _mm256_fmadd_ps(
+            vb[3], _mm256_set1_ps(0.114),
+            _mm256_fmadd_ps(
+                vg[3], _mm256_set1_ps(0.587),
+                _mm256_mul_ps(vr[3], _mm256_set1_ps(0.299))
+            )
+        ),
+    };
 
-        __m256 vb = _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b + k)));
+    __m256i vgs[] = {
+        _mm256_cvtps_epi32(sum[0]),
+        _mm256_cvtps_epi32(sum[1]),
+        _mm256_cvtps_epi32(sum[2]),
+        _mm256_cvtps_epi32(sum[3])
+    };
 
-        sum = _mm256_fmadd_ps(vb, _mm256_set1_ps(0.114), sum);
+    __m256i vres = _mm256_packus_epi16(
+        _mm256_permute4x64_epi64(_mm256_packus_epi32(vgs[0], vgs[2]), 0xD8),
+        _mm256_permute4x64_epi64(_mm256_packus_epi32(vgs[1], vgs[3]), 0xD8)
+    );
 
-        __m256i gs = _mm256_cvtps_epi32(sum);
-
-        float* ags = (float*)&gs;
-
-        for(size_t i = 0; i < 8; ++i){
-            ptr_r[k+i] = ptr_g[k+i] = ptr_b[k+i] = *ags;
-        }
-    }
+    _mm256_store_si256((__m256i*)ptr_r, vres);
+    _mm256_store_si256((__m256i*)ptr_g, vres);
+    _mm256_store_si256((__m256i*)ptr_b, vres);
 }
 
 static inline uint8_t _gs(uint8_t r, uint8_t g, uint8_t b){
