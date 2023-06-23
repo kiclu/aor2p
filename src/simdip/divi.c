@@ -7,37 +7,83 @@ divide constant by every pixel in the image
 
 // simd, divide constant by pixel, 8 bits per channel, pipeline
 void simd_divi_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
-    for(uint32_t k = 0; k < 32; k += 8){
-        __m256 fva_r = _mm256_cvtepi32_ps(
-            _mm256_setr_epi32(
-                ptr_r[k+0], ptr_r[k+1], ptr_r[k+2], ptr_r[k+3],
-                ptr_r[k+4], ptr_r[k+5], ptr_r[k+6], ptr_r[k+7]
-            )
-        );
-        __m256i vres_r = _mm256_cvtps_epi32(_mm256_div_ps(_mm256_set1_ps(c), fva_r));
+    __m256 vr[] = {
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r+8))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r+16))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_r+24)))
+    };
 
-        __m256 fva_g = _mm256_cvtepi32_ps(
-            _mm256_setr_epi32(
-                ptr_g[k+0], ptr_g[k+1], ptr_g[k+2], ptr_g[k+3],
-                ptr_g[k+4], ptr_g[k+5], ptr_g[k+6], ptr_g[k+7]
-            )
-        );
-        __m256i vres_g = _mm256_cvtps_epi32(_mm256_div_ps(_mm256_set1_ps(c), fva_g));
+    __m256 vg[] = {
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g+8))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g+16))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_g+24)))
+    };
 
-        __m256 fva_b = _mm256_cvtepi32_ps(
-            _mm256_setr_epi32(
-                ptr_b[k+0], ptr_b[k+1], ptr_b[k+2], ptr_b[k+3],
-                ptr_b[k+4], ptr_b[k+5], ptr_b[k+6], ptr_b[k+7]
-            )
-        );
-        __m256i vres_b = _mm256_cvtps_epi32(_mm256_div_ps(_mm256_set1_ps(c), fva_b));
+    __m256 vb[] = {
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+8))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+16))),
+        _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+24)))
+    };
 
-        for(size_t i = 0; i < 8; ++i){
-            ptr_r[k+i] = *((uint8_t*)&vres_r + (i << 2));
-            ptr_g[k+i] = *((uint8_t*)&vres_g + (i << 2));
-            ptr_b[k+i] = *((uint8_t*)&vres_b + (i << 2));
-        }
-    }
+    __m256 vc = _mm256_set1_ps(c);
+
+    __m256i vres_r = _mm256_packus_epi16(
+        _mm256_permute4x64_epi64(
+            _mm256_packus_epi32(
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vr[0])),
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vr[2]))
+            ),
+            0xD8
+        ),
+        _mm256_permute4x64_epi64(
+            _mm256_packus_epi32(
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vr[1])),
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vr[3]))
+            ),
+            0xD8
+        )
+    );
+
+    __m256i vres_g = _mm256_packus_epi16(
+        _mm256_permute4x64_epi64(
+            _mm256_packus_epi32(
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vg[0])),
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vg[2]))
+            ),
+            0xD8
+        ),
+        _mm256_permute4x64_epi64(
+            _mm256_packus_epi32(
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vg[1])),
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vg[3]))
+            ),
+            0xD8
+        )
+    );
+
+    __m256i vres_b = _mm256_packus_epi16(
+        _mm256_permute4x64_epi64(
+            _mm256_packus_epi32(
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vb[0])),
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vb[2]))
+            ),
+            0xD8
+        ),
+        _mm256_permute4x64_epi64(
+            _mm256_packus_epi32(
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vb[1])),
+                _mm256_cvtps_epi32(_mm256_div_ps(vc, vb[3]))
+            ),
+            0xD8
+        )
+    );
+
+    _mm256_store_si256((__m256i*)ptr_r, vres_r);
+    _mm256_store_si256((__m256i*)ptr_g, vres_g);
+    _mm256_store_si256((__m256i*)ptr_b, vres_b);
 }
 
 static inline uint8_t _divi(uint8_t a, uint8_t b){

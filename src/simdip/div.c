@@ -28,18 +28,20 @@ void simd_div_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
         _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(_mm_loadu_si64(ptr_b+24)))
     };
 
+    __m256 vc = _mm256_set1_ps(c);
+
     __m256i vres_r = _mm256_packus_epi16(
         _mm256_permute4x64_epi64(
             _mm256_packus_epi32(
-                _mm256_cvtps_epi32(_mm256_div_ps(vr[0], _mm256_set1_ps(c))),
-                _mm256_cvtps_epi32(_mm256_div_ps(vr[2], _mm256_set1_ps(c)))
+                _mm256_cvtps_epi32(_mm256_div_ps(vr[0], vc)),
+                _mm256_cvtps_epi32(_mm256_div_ps(vr[2], vc))
             ),
             0xD8
         ),
         _mm256_permute4x64_epi64(
             _mm256_packus_epi32(
-                _mm256_cvtps_epi32(_mm256_div_ps(vr[1], _mm256_set1_ps(c))),
-                _mm256_cvtps_epi32(_mm256_div_ps(vr[3], _mm256_set1_ps(c)))
+                _mm256_cvtps_epi32(_mm256_div_ps(vr[1], vc)),
+                _mm256_cvtps_epi32(_mm256_div_ps(vr[3], vc))
             ),
             0xD8
         )
@@ -48,15 +50,15 @@ void simd_div_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i vres_g = _mm256_packus_epi16(
         _mm256_permute4x64_epi64(
             _mm256_packus_epi32(
-                _mm256_cvtps_epi32(_mm256_div_ps(vg[0], _mm256_set1_ps(c))),
-                _mm256_cvtps_epi32(_mm256_div_ps(vg[2], _mm256_set1_ps(c)))
+                _mm256_cvtps_epi32(_mm256_div_ps(vg[0], vc)),
+                _mm256_cvtps_epi32(_mm256_div_ps(vg[2], vc))
             ),
             0xD8
         ),
         _mm256_permute4x64_epi64(
             _mm256_packus_epi32(
-                _mm256_cvtps_epi32(_mm256_div_ps(vg[1], _mm256_set1_ps(c))),
-                _mm256_cvtps_epi32(_mm256_div_ps(vg[3], _mm256_set1_ps(c)))
+                _mm256_cvtps_epi32(_mm256_div_ps(vg[1], vc)),
+                _mm256_cvtps_epi32(_mm256_div_ps(vg[3], vc))
             ),
             0xD8
         )
@@ -65,15 +67,15 @@ void simd_div_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i vres_b = _mm256_packus_epi16(
         _mm256_permute4x64_epi64(
             _mm256_packus_epi32(
-                _mm256_cvtps_epi32(_mm256_div_ps(vb[0], _mm256_set1_ps(c))),
-                _mm256_cvtps_epi32(_mm256_div_ps(vb[2], _mm256_set1_ps(c)))
+                _mm256_cvtps_epi32(_mm256_div_ps(vb[0], vc)),
+                _mm256_cvtps_epi32(_mm256_div_ps(vb[2], vc))
             ),
             0xD8
         ),
         _mm256_permute4x64_epi64(
             _mm256_packus_epi32(
-                _mm256_cvtps_epi32(_mm256_div_ps(vb[1], _mm256_set1_ps(c))),
-                _mm256_cvtps_epi32(_mm256_div_ps(vb[3], _mm256_set1_ps(c)))
+                _mm256_cvtps_epi32(_mm256_div_ps(vb[1], vc)),
+                _mm256_cvtps_epi32(_mm256_div_ps(vb[3], vc))
             ),
             0xD8
         )
