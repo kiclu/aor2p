@@ -13,6 +13,6 @@ do
     sum_s3=$(( $cur_s3 + $sum_s3 ))
 done
 
-echo $@ > benchmark.log
-echo "-s0="$(( $sum_s0 / 10 ))"ns" >> benchmark.log
-echo "-s3="$(( $sum_s3 / 10 ))"ns" >> benchmark.log
+echo "-s0="$(( $sum_s0 / 10 ))"ns"
+echo "-s3="$(( $sum_s3 / 10 ))"ns"
+echo "relative="$(( $sum_s0 / $sum_s3 ))
