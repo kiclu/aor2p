@@ -100,7 +100,13 @@ ___
 `-s2` - SIMD, no pipeline\
 `-s3` - SIMD & pipeline, default
 ## 3. Performance
-Time taken for a single operation on 1280x838 sample image, averaged over 10 tests.
+Time taken for a single operation on 1280x838 sample image, averaged over 10 tests.\
+
+Tested on:
+- AMD Ryzen 3700U, 4 cores / 8 threads, 8GB RAM, Debian 11
+- AMD Ryzen 2200G, 4 cores / 8 threads, 16GB RAM, Debian 12
+- AMD Epyc 7R32, 16 cores / 32 threads, 64GB RAM, Debian 11 (AWS c5a.8xlarge instance)
+<br><br>
 
 | op      | t avg simd[ns] | t avg nosimd[ns] | relative |
 | ------- | -------------- | ---------------- | -------- |
@@ -122,5 +128,8 @@ Time taken for a single operation on 1280x838 sample image, averaged over 10 tes
 | gs      | 465,720        | 8,371,089        |  17.97x  |
 | kern3x3 | 7,548,670      | 28,859,810       |   3.82x  |
 | kern5x5 | 14,156,100     | 71,436,110       |   5.05x  |
+
+\* Performance is heavily dependent on both hardware and OS. Results shown are best-case scenario. Running on other hardware and OS may yield slightly worse relative performance, but still much faster than naive implementation.\
+\** Testing has show that there is no real benefit from running with more than 4 threads.
 ___
 Belgrade, June 2023.
