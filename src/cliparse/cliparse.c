@@ -141,6 +141,9 @@ args_t* cliparse(int argc, const char** argv){
         for(int i = 2; i < argc; ++i){
             if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
             if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
+            if(argv[i] == strstr(argv[i], "--thread-count=")){
+                args->thread_count = atoi(strchr(argv[i], '=') + 1);
+            }
         }
     }
 
@@ -240,47 +243,48 @@ args_t* cliparse(int argc, const char** argv){
     }
 
 #ifdef  SIMDIP_VERBOSE
-    printf("==================================================\n");
+    int c = 0;
+    printf("======================================================================\n");
     printf("FILTERS:\n");
-    printf("--------------------------------------------------\n");
+    printf("----------------------------------------------------------------------\n");
     for(pnode_t* i = args->signal_chain; i; i = i->next){
         switch(i->op){
-            case OP_ADD:   printf("op_add");   break;
-            case OP_SUB:   printf("op_sub");   break;
-            case OP_ISUB:  printf("op_isub");  break;
-            case OP_MUL:   printf("op_mul");   break;
-            case OP_DIV:   printf("op_div");   break;
-            case OP_IDIV:  printf("op_idiv");  break;
+            case OP_ADD:   c += printf("op_add");   break;
+            case OP_SUB:   c += printf("op_sub");   break;
+            case OP_ISUB:  c += printf("op_isub");  break;
+            case OP_MUL:   c += printf("op_mul");   break;
+            case OP_DIV:   c += printf("op_div");   break;
+            case OP_IDIV:  c += printf("op_idiv");  break;
 
-            case OP_ADDS:  printf("op_adds");  break;
-            case OP_SUBS:  printf("op_subs");  break;
-            case OP_ISUBS: printf("op_isubs"); break;
+            case OP_ADDS:  c += printf("op_adds");  break;
+            case OP_SUBS:  c += printf("op_subs");  break;
+            case OP_ISUBS: c += printf("op_isubs"); break;
 
-            case OP_POW:   printf("op_pow");   break;
-            case OP_LOG:   printf("op_log");   break;
-            case OP_ABS:   printf("op_abs");   break;
-            case OP_MIN:   printf("op_min");   break;
-            case OP_MAX:   printf("op_max");   break;
+            case OP_POW:   c += printf("op_pow");   break;
+            case OP_LOG:   c += printf("op_log");   break;
+            case OP_ABS:   c += printf("op_abs");   break;
+            case OP_MIN:   c += printf("op_min");   break;
+            case OP_MAX:   c += printf("op_max");   break;
 
-            case OP_NEG:   printf("op_neg");   break;
-            case OP_GS:    printf("op_gs");    break;
+            case OP_NEG:   c += printf("op_neg");   break;
+            case OP_GS:    c += printf("op_gs");    break;
 
-            case OP_KERN:  printf("op_kern");  break;
+            case OP_KERN:  c += printf("op_kern");  break;
 
-            case OP_WR:    printf("op_wr");    break;
+            case OP_WR:    c += printf("op_wr");    break;
         }
 
         switch(i->type){
-            case op_const:  printf(" %d", i->arg.op_const); break;
-            case op_kern:   printf(" %lux%lu", i->arg.op_kern.n, i->arg.op_kern.m); break;
-            case op_fileio: printf(" %s", i->arg.op_fileio); break;
+            case op_const:  c += printf(" %d", i->arg.op_const); break;
+            case op_kern:   c += printf(" %lux%lu", i->arg.op_kern.n, i->arg.op_kern.m); break;
+            case op_fileio: c += printf(" %s", i->arg.op_fileio); break;
             case op_noarg:  break;
         }
         if(i->next) printf(" | ");
+        if(c > 50){ c = 0; printf("\n"); }
     }
     printf("\n");
-    printf("==================================================\n");
-    printf("\n");
+    printf("======================================================================\n");
 #endif//SIMDIP_VERBOSE
 
     return args;

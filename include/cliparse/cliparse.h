@@ -77,6 +77,7 @@ typedef struct args{
 
     bool        no_pipeline;
     bool        no_simd;
+    size_t      thread_count;
 } args_t;
 
 args_t* cliparse(int argc, const char** argv);

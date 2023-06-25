@@ -13,14 +13,15 @@
 #include<stb/stb_image_write.h>
 
 void img_print_info(imgfile_t* imgfile){
-    printf("==================================================\n");
+    printf("======================================================================\n");
     printf("IMAGE INFO:\n");
-    printf("--------------------------------------------------\n");
+    printf("----------------------------------------------------------------------\n");
     printf("path:        %s\n",    imgfile->filename);
     printf("width:       %lupx\n", imgfile->width);
     printf("height:      %lupx\n", imgfile->height);
     printf("bit depth:   %lu\n",   imgfile->bit_depth);
-    printf("==================================================\n");
+    printf("======================================================================\n");
+    printf("======================================================================\n");
 }
 
 static imgfile_t* img_fread_png(const char* filename){

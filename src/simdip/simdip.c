@@ -10,8 +10,7 @@ static struct timespec timer_start(){
     return start_time;
 }
 
-// call this function to end a timer, returning nanoseconds elapsed as a long
-uint64_t timer_end(struct timespec start_time){
+static uint64_t timer_end(struct timespec start_time){
     struct timespec end_time;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_time);
     return (end_time.tv_sec - start_time.tv_sec) * 1000000000UL + (end_time.tv_nsec - start_time.tv_nsec);;
@@ -57,6 +56,7 @@ static uint64_t process_ns_np(args_t* args){
 
 // process, no simd & pipeline
 static uint64_t process_ns(args_t* args){
+    // TODO: implement
     return 0;
 }
 
@@ -100,9 +100,8 @@ static uint64_t process_np(args_t* args){
 
 #define rgb_ptrs ptr_r + j, ptr_g + j, ptr_b + j
 
-#ifndef THREAD_COUNT
 // process, simd & pipeline
-static uint64_t process_opt(args_t* args){
+static uint64_t process_st(args_t* args){
     struct timespec start_time = timer_start();
     uint64_t write_time = 0;
     pnode_t* start_s = args->signal_chain;
@@ -163,8 +162,6 @@ static uint64_t process_opt(args_t* args){
     return timer_end(start_time) - write_time;
 }
 
-#else
-
 #include<pthread.h>
 #include<semaphore.h>
 
@@ -173,7 +170,6 @@ typedef struct{
     size_t si;
     size_t ei;
     args_t* args;
-    uint64_t time;
 
     // write entry/exit barriers
     pthread_barrier_t* barrier_wentry;
@@ -184,7 +180,7 @@ typedef struct{
     pthread_barrier_t* barrier_kexit;
 } process_worker_arg_t;
 
-void* process_opt_mt_worker(void* arg){
+static void* process_smt_worker(void* arg){
     process_worker_arg_t* warg = (process_worker_arg_t*)arg;
     args_t* args = warg->args;
 
@@ -244,6 +240,7 @@ void* process_opt_mt_worker(void* arg){
                 pthread_barrier_wait(warg->barrier_kexit);
             }
             else{
+                // wait for worker thread 0 to finish kernel operation
                 pthread_barrier_wait(warg->barrier_kentry);
                 pthread_barrier_wait(warg->barrier_kexit);
             }
@@ -265,6 +262,7 @@ void* process_opt_mt_worker(void* arg){
                 write_time += timer_end(write_start_time);
             }
             else{
+                // wait for worker thread 0 to finish file output
                 pthread_barrier_wait(warg->barrier_wentry);
                 pthread_barrier_wait(warg->barrier_wexit);
             }
@@ -279,26 +277,27 @@ void* process_opt_mt_worker(void* arg){
     pthread_exit((void*)time);
 }
 
-static uint64_t process_opt_mt(args_t* args){
-    struct timespec start_time = timer_start();
-    
+
+static uint64_t process_smt(args_t* args){
+    // initialize worker thread synchronization barriers
     pthread_barrier_t barrier_wentry;
     pthread_barrier_t barrier_wexit;
 
     pthread_barrier_t barrier_kentry;
     pthread_barrier_t barrier_kexit;
 
-    pthread_barrier_init(&barrier_wentry, NULL, THREAD_COUNT);
-    pthread_barrier_init(&barrier_wexit, NULL, THREAD_COUNT);
-
-    pthread_barrier_init(&barrier_kentry, NULL, THREAD_COUNT);
-    pthread_barrier_init(&barrier_kexit, NULL, THREAD_COUNT);
-
-    process_worker_arg_t warg[THREAD_COUNT];
-    for(size_t i = 0; i < THREAD_COUNT; ++i){
+    pthread_barrier_init(&barrier_wentry, NULL, args->thread_count);
+    pthread_barrier_init(&barrier_wexit, NULL, args->thread_count);
+    
+    pthread_barrier_init(&barrier_kentry, NULL, args->thread_count);
+    pthread_barrier_init(&barrier_kexit, NULL, args->thread_count);
+    
+    // initialize worker threads
+    process_worker_arg_t* warg = (process_worker_arg_t*)malloc(args->thread_count * sizeof(process_worker_arg_t));
+    for(size_t i = 0; i < args->thread_count; ++i){
         warg[i].thread_id = i;
-        warg[i].si = (args->imgfile->height / THREAD_COUNT) * i;
-        warg[i].ei = (args->imgfile->height / THREAD_COUNT) * (i+1);
+        warg[i].si = (args->imgfile->height / args->thread_count) * i;
+        warg[i].ei = (args->imgfile->height / args->thread_count) * (i+1);
         warg[i].args = args;
     
         warg[i].barrier_wentry = &barrier_wentry;
@@ -307,32 +306,43 @@ static uint64_t process_opt_mt(args_t* args){
         warg[i].barrier_kentry = &barrier_kentry;
         warg[i].barrier_kexit = &barrier_kexit;
     }
-    warg[THREAD_COUNT-1].ei = args->imgfile->height;
+    warg[args->thread_count - 1].ei = args->imgfile->height;
+    
+    // create worker threads
+    pthread_t* pt = (pthread_t*)malloc(args->thread_count * sizeof(pthread_t));
+    
+    // start time measurement
+    struct timespec start_time = timer_start();
 
-    pthread_t pt[THREAD_COUNT];
-    for(size_t i = 0; i < THREAD_COUNT; ++i){
-        pthread_create(&pt[i], NULL, process_opt_mt_worker, (void*)&warg[i]);
+    for(size_t i = 0; i < args->thread_count; ++i){
+        pthread_create(&pt[i], NULL, process_smt_worker, (void*)&warg[i]);
     }
     
+    // wait for all worker threads to finish and compute time taken
     uint64_t total_write_time = 0;
-    for(size_t i = 0; i < THREAD_COUNT; ++i){
+    for(size_t i = 0; i < args->thread_count; ++i){
         uint64_t* thread_write_time;
         pthread_join(pt[i], (void**)&thread_write_time);
         total_write_time += *thread_write_time;
         free(thread_write_time);
     }
+    
+    // free barriers
+    pthread_barrier_destroy(&barrier_wentry);
+    pthread_barrier_destroy(&barrier_wexit);
+
+    pthread_barrier_destroy(&barrier_kentry);
+    pthread_barrier_destroy(&barrier_kexit);
+
+    free(warg);
+    free(pt);
 
     return timer_end(start_time) - total_write_time;
 }
-#endif//THREAD_COUNT
 
 uint64_t process(args_t* args){
     if( args->no_simd &&  args->no_pipeline) return process_ns_np(args);
     if( args->no_simd && !args->no_pipeline) return process_ns(args);
     if(!args->no_simd &&  args->no_pipeline) return process_np(args);
-#ifdef THREAD_COUNT
-    return process_opt_mt(args);
-#else
-    return process_opt(args);
-#endif//THREADCOUNT
+    return args->thread_count ? process_smt(args) : process_st(args);
 }
