@@ -88,12 +88,13 @@ ___
 `-gs` / `--greyscale`
 ___
 ### 2.5. Kernel filtering
-//
+`-k=<file>` / `--kern=<file>`
 ___
 ### 2.6. File operations
 `-o=<file>`
 ___
 ### 2.7. Optimization level
+`--thread-count=n'\
 `--no-pipeline`\
 `--no-simd`\
 `-s0` - no optimizations\
