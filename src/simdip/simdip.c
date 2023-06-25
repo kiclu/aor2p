@@ -175,17 +175,13 @@ typedef struct{
     args_t* args;
     uint64_t time;
 
-    sem_t* barrier_wentry_mutex;
-    size_t* barrier_wentry_val;
+    // write entry/exit barriers
+    pthread_barrier_t* barrier_wentry;
+    pthread_barrier_t* barrier_wexit;
 
-    sem_t* barrier_wexit_mutex;
-    size_t* barrier_wexit_val;
-
-    sem_t* barrier_kentry_mutex;
-    size_t* barrier_kentry_val;
-
-    sem_t* barrier_kexit_mutex;
-    size_t* barrier_kexit_val;
+    // kernel operation entry/exit barriers
+    pthread_barrier_t* barrier_kentry;
+    pthread_barrier_t* barrier_kexit;
 } process_worker_arg_t;
 
 void* process_opt_mt_worker(void* arg){
@@ -239,40 +235,17 @@ void* process_opt_mt_worker(void* arg){
         if(end_s && OP_KERN == end_s->op){
             if(warg->thread_id == 0){
                 // wait for all other threads to finish all work before kernel operation
-                for(;;){
-                    sem_wait(warg->barrier_kentry_mutex);
-                    if((*warg->barrier_kentry_val) == THREAD_COUNT - 1){
-                        *warg->barrier_kentry_val = 0;
-                        sem_post(warg->barrier_kentry_mutex);
-                        break;
-                    }
-                    sem_post(warg->barrier_kentry_mutex);
-                }
+                pthread_barrier_wait(warg->barrier_kentry);
 
                 // kernel operation
                 simd_kern_8bpc_npl(args->imgfile, end_s->arg.op_kern);
 
-                // signal to other threads that kernel operation is done
-                sem_wait(warg->barrier_kexit_mutex);
-                *warg->barrier_kexit_val = THREAD_COUNT - 1;
-                sem_post(warg->barrier_kexit_mutex);
+                // wait for kernel operation to finish before continuin all threads
+                pthread_barrier_wait(warg->barrier_kexit);
             }
             else{
-                // signal thread_id 0 that this thread is waiting for kernel operation
-                sem_wait(warg->barrier_kentry_mutex);
-                ++*warg->barrier_kentry_val;
-                sem_post(warg->barrier_kentry_mutex);
-
-                // wait for thread_id 0 to finish kernel operation
-                for(;;){
-                    sem_wait(warg->barrier_kexit_mutex);
-                    if(*warg->barrier_kexit_val > 0){
-                        --(*warg->barrier_kexit_val);
-                        sem_post(warg->barrier_kexit_mutex);
-                        break;
-                    }
-                    sem_post(warg->barrier_kexit_mutex);
-                }
+                pthread_barrier_wait(warg->barrier_kentry);
+                pthread_barrier_wait(warg->barrier_kexit);
             }
         }
 
@@ -281,42 +254,19 @@ void* process_opt_mt_worker(void* arg){
                 struct timespec write_start_time = timer_start();
 
                 // wait for all other threads to finish all work before writing
-                for(;;){
-                    sem_wait(warg->barrier_wentry_mutex);
-                    if(*warg->barrier_wentry_val == THREAD_COUNT - 1){
-                        *warg->barrier_wentry_val = 0;
-                        sem_post(warg->barrier_wentry_mutex);
-                        break;
-                    }
-                    sem_post(warg->barrier_wentry_mutex);
-                }
+                pthread_barrier_wait(warg->barrier_wentry);
 
                 // write
                 img_fwrite(args->imgfile, end_s->arg.op_fileio);
 
-                // signal to other threads that output is done
-                sem_wait(warg->barrier_wexit_mutex);
-                *warg->barrier_wexit_val = THREAD_COUNT - 1;
-                sem_post(warg->barrier_wexit_mutex);
+                // wait for output to finish before continuing all threads
+                pthread_barrier_wait(warg->barrier_wexit);
 
                 write_time += timer_end(write_start_time);
             }
             else{
-                // signal thread_id 0 that this thread is waiting for file output
-                sem_wait(warg->barrier_wentry_mutex);
-                ++*warg->barrier_wentry_val;
-                sem_post(warg->barrier_wentry_mutex);
-
-                // wait for thread_id 0 to finish file output
-                for(;;){
-                    sem_wait(warg->barrier_wexit_mutex);
-                    if(*warg->barrier_wexit_val > 0){
-                        --*warg->barrier_wexit_val;
-                        sem_post(warg->barrier_wexit_mutex);
-                        break;
-                    }
-                    sem_post(warg->barrier_wexit_mutex);
-                }
+                pthread_barrier_wait(warg->barrier_wentry);
+                pthread_barrier_wait(warg->barrier_wexit);
             }
         }
 
@@ -331,22 +281,18 @@ void* process_opt_mt_worker(void* arg){
 
 static uint64_t process_opt_mt(args_t* args){
     struct timespec start_time = timer_start();
+    
+    pthread_barrier_t barrier_wentry;
+    pthread_barrier_t barrier_wexit;
 
-    size_t barrier_wentry_val = 0;
-    sem_t barrier_wentry_mutex;
-    sem_init(&barrier_wentry_mutex, 0, 1);
+    pthread_barrier_t barrier_kentry;
+    pthread_barrier_t barrier_kexit;
 
-    sem_t barrier_wexit_mutex;
-    size_t barrier_wexit_val = 0;
-    sem_init(&barrier_wexit_mutex, 0, 1);
+    pthread_barrier_init(&barrier_wentry, NULL, THREAD_COUNT);
+    pthread_barrier_init(&barrier_wexit, NULL, THREAD_COUNT);
 
-    size_t barrier_kentry_val = 0;
-    sem_t barrier_kentry_mutex;
-    sem_init(&barrier_kentry_mutex, 0, 1);
-
-    size_t barrier_kexit_val = 0;
-    sem_t barrier_kexit_mutex;
-    sem_init(&barrier_kexit_mutex, 0, 1);
+    pthread_barrier_init(&barrier_kentry, NULL, THREAD_COUNT);
+    pthread_barrier_init(&barrier_kexit, NULL, THREAD_COUNT);
 
     process_worker_arg_t warg[THREAD_COUNT];
     for(size_t i = 0; i < THREAD_COUNT; ++i){
@@ -354,18 +300,12 @@ static uint64_t process_opt_mt(args_t* args){
         warg[i].si = (args->imgfile->height / THREAD_COUNT) * i;
         warg[i].ei = (args->imgfile->height / THREAD_COUNT) * (i+1);
         warg[i].args = args;
+    
+        warg[i].barrier_wentry = &barrier_wentry;
+        warg[i].barrier_wexit = &barrier_wexit;
 
-        warg[i].barrier_wentry_val = &barrier_wentry_val;
-        warg[i].barrier_wentry_mutex = &barrier_wentry_mutex;
-
-        warg[i].barrier_wexit_val = &barrier_wexit_val;
-        warg[i].barrier_wexit_mutex = &barrier_wexit_mutex;
-
-        warg[i].barrier_kentry_val = &barrier_kentry_val;
-        warg[i].barrier_kentry_mutex = &barrier_kentry_mutex;
-
-        warg[i].barrier_kexit_val = &barrier_kexit_val;
-        warg[i].barrier_kexit_mutex = &barrier_kexit_mutex;
+        warg[i].barrier_kentry = &barrier_kentry;
+        warg[i].barrier_kexit = &barrier_kexit;
     }
     warg[THREAD_COUNT-1].ei = args->imgfile->height;
 
