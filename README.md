@@ -94,14 +94,14 @@ ___
 `-o=<file>`
 ___
 ### 2.7. Optimization level
-`--thread-count=n'\
+`--thread-count=n`\
 `--no-pipeline`\
 `--no-simd`\
 `-s0` - no optimizations\
 `-s2` - SIMD, no pipeline\
 `-s3` - SIMD & pipeline, default
 ## 3. Performance
-Time taken for a single operation on 1280x838 sample image, averaged over 10 tests.\
+Time taken for a single operation on 1280x838 sample image, averaged over 10 tests.
 
 Tested on:
 - AMD Ryzen 3700U, 4 cores / 8 threads, 8GB RAM, Debian 11
