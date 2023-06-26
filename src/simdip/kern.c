@@ -75,6 +75,27 @@ static void simd_kern_8bpc(uint8_t** ptr_r, uint8_t** ptr_g, uint8_t** ptr_b, ke
     }
 }
 
+void simd_kern_8bpc_npl_smt(imgfile_t* imgfile, kern_t k, size_t si, size_t ei){
+    for(size_t i = si; i < ei; ++i){
+        for(size_t j = 0; j < imgfile->width - k.m; j += 8){
+//    for(size_t j = 0; j < imgfile->width - k.m; j += 8){
+//        for(size_t i = si; i < ei; ++i){
+            simd_kern_8bpc(
+                imgfile->imgdata._8bpc.r,
+                imgfile->imgdata._8bpc.g,
+                imgfile->imgdata._8bpc.b,
+                k, i, j
+            );
+        }
+    }
+}
+
+void simd_kswap_8bpc_npl_smt(imgfile_t* imgfile){
+    _swap(&imgfile->imgdata._8bpc.r, &kr);
+    _swap(&imgfile->imgdata._8bpc.g, &kg);
+    _swap(&imgfile->imgdata._8bpc.b, &kb);
+}
+
 // simd, apply kernel to pixel, 8 bits per channel, no pipeline
 void simd_kern_8bpc_npl(imgfile_t* imgfile, kern_t k){
     for(size_t i = 0; i < imgfile->height - k.n; ++i){
@@ -83,9 +104,7 @@ void simd_kern_8bpc_npl(imgfile_t* imgfile, kern_t k){
                 imgfile->imgdata._8bpc.r,
                 imgfile->imgdata._8bpc.g,
                 imgfile->imgdata._8bpc.b,
-                k,
-                i,
-                j
+                k, i, j
             );
         }
     }

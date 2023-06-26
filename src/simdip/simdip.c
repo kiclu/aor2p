@@ -167,17 +167,14 @@ static uint64_t process_st(args_t* args){
 
 typedef struct{
     size_t thread_id;
+
     size_t si;
     size_t ei;
     args_t* args;
 
-    // write entry/exit barriers
-    pthread_barrier_t* barrier_wentry;
-    pthread_barrier_t* barrier_wexit;
-
-    // kernel operation entry/exit barriers
-    pthread_barrier_t* barrier_kentry;
-    pthread_barrier_t* barrier_kexit;
+    // sychronization barriers
+    pthread_barrier_t* barrier_kern;
+    pthread_barrier_t* barrier_wr;
 } process_worker_arg_t;
 
 static void* process_smt_worker(void* arg){
@@ -229,21 +226,25 @@ static void* process_smt_worker(void* arg){
         }
 
         if(end_s && OP_KERN == end_s->op){
-            if(warg->thread_id == 0){
-                // wait for all other threads to finish all work before kernel operation
-                pthread_barrier_wait(warg->barrier_kentry);
+            // wait for all other threads to finish all work before kernel operation
+            pthread_barrier_wait(warg->barrier_kern);
 
-                // kernel operation
-                simd_kern_8bpc_npl(args->imgfile, end_s->arg.op_kern);
+            // kernel operation
+            simd_kern_8bpc_npl_smt(
+                args->imgfile,
+                end_s->arg.op_kern,
+                warg->si,
+                warg->thread_id == args->thread_count - 1 ? warg->ei - end_s->arg.op_kern.n : warg->ei
+            );
 
-                // wait for kernel operation to finish before continuin all threads
-                pthread_barrier_wait(warg->barrier_kexit);
-            }
-            else{
-                // wait for worker thread 0 to finish kernel operation
-                pthread_barrier_wait(warg->barrier_kentry);
-                pthread_barrier_wait(warg->barrier_kexit);
-            }
+            // wait for kernel operation to finish on all threads
+            pthread_barrier_wait(warg->barrier_kern);
+
+            // swap kernel filter buffer and image data
+            if(warg->thread_id == 0) simd_kswap_8bpc_npl_smt(args->imgfile);
+
+            // wait for swap to finish
+            pthread_barrier_wait(warg->barrier_kern);
         }
 
         if(end_s && OP_WR == end_s->op){
@@ -251,20 +252,20 @@ static void* process_smt_worker(void* arg){
                 struct timespec write_start_time = timer_start();
 
                 // wait for all other threads to finish all work before writing
-                pthread_barrier_wait(warg->barrier_wentry);
+                pthread_barrier_wait(warg->barrier_wr);
 
                 // write
                 img_fwrite(args->imgfile, end_s->arg.op_fileio);
 
                 // wait for output to finish before continuing all threads
-                pthread_barrier_wait(warg->barrier_wexit);
+                pthread_barrier_wait(warg->barrier_wr);
 
                 write_time += timer_end(write_start_time);
             }
             else{
                 // wait for worker thread 0 to finish file output
-                pthread_barrier_wait(warg->barrier_wentry);
-                pthread_barrier_wait(warg->barrier_wexit);
+                pthread_barrier_wait(warg->barrier_wr);
+                pthread_barrier_wait(warg->barrier_wr);
             }
         }
 
@@ -280,31 +281,23 @@ static void* process_smt_worker(void* arg){
 
 static uint64_t process_smt(args_t* args){
     // initialize worker thread synchronization barriers
-    pthread_barrier_t barrier_wentry;
-    pthread_barrier_t barrier_wexit;
+    pthread_barrier_t barrier_kern;
+    pthread_barrier_t barrier_wr;
 
-    pthread_barrier_t barrier_kentry;
-    pthread_barrier_t barrier_kexit;
-
-    pthread_barrier_init(&barrier_wentry, NULL, args->thread_count);
-    pthread_barrier_init(&barrier_wexit, NULL, args->thread_count);
-    
-    pthread_barrier_init(&barrier_kentry, NULL, args->thread_count);
-    pthread_barrier_init(&barrier_kexit, NULL, args->thread_count);
+    pthread_barrier_init(&barrier_kern, NULL, args->thread_count);
+    pthread_barrier_init(&barrier_wr, NULL, args->thread_count);
     
     // initialize worker threads
     process_worker_arg_t* warg = (process_worker_arg_t*)malloc(args->thread_count * sizeof(process_worker_arg_t));
     for(size_t i = 0; i < args->thread_count; ++i){
         warg[i].thread_id = i;
+
         warg[i].si = (args->imgfile->height / args->thread_count) * i;
         warg[i].ei = (args->imgfile->height / args->thread_count) * (i+1);
         warg[i].args = args;
     
-        warg[i].barrier_wentry = &barrier_wentry;
-        warg[i].barrier_wexit = &barrier_wexit;
-
-        warg[i].barrier_kentry = &barrier_kentry;
-        warg[i].barrier_kexit = &barrier_kexit;
+        warg[i].barrier_kern = &barrier_kern;
+        warg[i].barrier_wr = &barrier_wr;
     }
     warg[args->thread_count - 1].ei = args->imgfile->height;
     
@@ -328,11 +321,8 @@ static uint64_t process_smt(args_t* args){
     }
     
     // free barriers
-    pthread_barrier_destroy(&barrier_wentry);
-    pthread_barrier_destroy(&barrier_wexit);
-
-    pthread_barrier_destroy(&barrier_kentry);
-    pthread_barrier_destroy(&barrier_kexit);
+    pthread_barrier_destroy(&barrier_kern);
+    pthread_barrier_destroy(&barrier_wr);
 
     free(warg);
     free(pt);

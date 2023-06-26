@@ -47,6 +47,7 @@ static void insert_op_kernel(pnode_t** chain, op_t op, const char* filename){
             fscanf(fin, "%f", &t->arg.op_kern.kern[i][j]);
         }
     }
+    fclose(fin);
     
     if(NULL == *chain){ *chain = t; return; }
     pnode_t* i;
@@ -88,7 +89,11 @@ args_t* cliparse(int argc, const char** argv){
     }
 
     // initialize args structure
-    args_t* args = malloc(sizeof(args_t));
+    args_t* args = NULL;
+    if(NULL == (args = malloc(sizeof(args_t)))){
+        // TODO: couldn't allocate args error
+        return NULL;
+    }
 
     // read input file
     args->imgfile = img_fread(argv[1]);
@@ -119,6 +124,10 @@ args_t* cliparse(int argc, const char** argv){
         return NULL;
     }
 
+    args->thread_count = 0;
+    args->no_pipeline = false;
+    args->no_simd = false;
+
     int opt_level = -1;
     for(int i = 2; i < argc; ++i){
         if(argv[i] == strstr(argv[i], "-s0")){
@@ -141,12 +150,13 @@ args_t* cliparse(int argc, const char** argv){
         for(int i = 2; i < argc; ++i){
             if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
             if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
-            if(argv[i] == strstr(argv[i], "--thread-count=")){
+            if(argv[i] == strstr(argv[i], "--thread-count=") || argv[i] == strstr(argv[i], "--thread_count=")){
                 args->thread_count = atoi(strchr(argv[i], '=') + 1);
             }
         }
     }
 
+    args->signal_chain = NULL;
     for(int i = 2; i < argc; ++i){
         if(argv[i] == strstr(argv[i], "-a=") || argv[i] == strstr(argv[i], "--add=")){
             insert_op_const(&args->signal_chain, OP_ADD, atoi(strchr(argv[i], '=') + 1));
@@ -228,7 +238,7 @@ args_t* cliparse(int argc, const char** argv){
             continue;
         }
 
-        if(argv[i] == strstr(argv[i], "-k=") || argv[i] == strstr(argv[i], "--kernel=")){
+        if(argv[i] == strstr(argv[i], "-k=") || argv[i] == strstr(argv[i], "--kern=")){
             kern_init(args->imgfile->height, args->imgfile->width);
             insert_op_kernel(&args->signal_chain, OP_KERN, strchr(argv[i], '=') + 1);
             continue;
@@ -290,11 +300,21 @@ args_t* cliparse(int argc, const char** argv){
     return args;
 }
 
+static void free_kern(pnode_t* p){
+    for(size_t i = 0; i < p->arg.op_kern.n; ++i){
+        free(p->arg.op_kern.kern[i]);
+    }
+    free(p->arg.op_kern.kern);
+}
+
 void cliparse_free(args_t* args){
     if(NULL == args) return;
 
     pnode_t* p = args->signal_chain;
-    for(pnode_t* i = p->next; i; i = i->next){ free(p); p = i; }
+    for(pnode_t* i = p->next; i; i = i->next){
+        if(op_kern == i->type) free_kern(i);
+        free(p); p = i;
+    }
     free(p);
 
     img_free(args->imgfile);

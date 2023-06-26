@@ -30,8 +30,9 @@ static imgfile_t* img_fread_png(const char* filename){
     imgfile->filename = (char*)malloc(strlen(filename) + 1);
     strcpy(imgfile->filename, filename);
 
+    uint8_t* stbi_data;
     int h, w, c;
-    if(NULL == (imgfile->img = stbi_load(filename, &w, &h, &c, 4))){
+    if(NULL == (stbi_data = stbi_load(filename, &w, &h, &c, 4))){
         // TODO: handle image load failed
         // free(imgfile-filename);
         return NULL;
@@ -59,12 +60,14 @@ static imgfile_t* img_fread_png(const char* filename){
     size_t k = 0;
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            imgfile->imgdata._8bpc.r[i][j] = imgfile->img[k++];
-            imgfile->imgdata._8bpc.g[i][j] = imgfile->img[k++];
-            imgfile->imgdata._8bpc.b[i][j] = imgfile->img[k++];
-            imgfile->imgdata._8bpc.a[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.r[i][j] = stbi_data[k++];
+            imgfile->imgdata._8bpc.g[i][j] = stbi_data[k++];
+            imgfile->imgdata._8bpc.b[i][j] = stbi_data[k++];
+            imgfile->imgdata._8bpc.a[i][j] = stbi_data[k++];
         }
     }
+
+    free(stbi_data);
 
     return imgfile;
 }
@@ -75,10 +78,11 @@ static imgfile_t* img_fread_bmp(const char* filename){
     imgfile->filename = (char*)malloc(strlen(filename) + 1);
     strcpy(imgfile->filename, filename);
 
+    uint8_t* stbi_data = NULL;
     int h, w, c;
-    if(NULL == (imgfile->img = stbi_load(filename, &w, &h, &c, 4))){
+    if(NULL == (stbi_data = stbi_load(filename, &w, &h, &c, 4))){
         // TODO: handle image load failed
-        // free(imgfile-filename);
+        free(imgfile->filename);
         return NULL;
     }
     
@@ -104,12 +108,14 @@ static imgfile_t* img_fread_bmp(const char* filename){
     size_t k = 0;
     for(size_t i = 0; i < imgfile->height; ++i){
         for(size_t j = 0; j < imgfile->width; ++j){
-            imgfile->imgdata._8bpc.r[i][j] = imgfile->img[k++];
-            imgfile->imgdata._8bpc.g[i][j] = imgfile->img[k++];
-            imgfile->imgdata._8bpc.b[i][j] = imgfile->img[k++];
-            imgfile->imgdata._8bpc.a[i][j] = imgfile->img[k++];
+            imgfile->imgdata._8bpc.r[i][j] = stbi_data[k++];
+            imgfile->imgdata._8bpc.g[i][j] = stbi_data[k++];
+            imgfile->imgdata._8bpc.b[i][j] = stbi_data[k++];
+            imgfile->imgdata._8bpc.a[i][j] = stbi_data[k++];
         }
     }
+    
+    stbi_image_free(stbi_data);
 
     return imgfile;
 }
@@ -199,11 +205,13 @@ void img_free(imgfile_t* imgfile){
         free(imgfile->imgdata._8bpc.r[i]);
         free(imgfile->imgdata._8bpc.g[i]);
         free(imgfile->imgdata._8bpc.b[i]);
+        free(imgfile->imgdata._8bpc.a[i]);
     }
     
     free(imgfile->imgdata._8bpc.r);
     free(imgfile->imgdata._8bpc.g);
     free(imgfile->imgdata._8bpc.b);
+    free(imgfile->imgdata._8bpc.a);
 
     free(imgfile->filename);
 

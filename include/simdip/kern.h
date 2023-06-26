@@ -16,6 +16,11 @@ typedef struct {
     size_t m;
 } kern_t;
 
+void simd_kswap_8bpc_npl_smt(imgfile_t*);
+
+// simd, apply, kernel to pixel, 8 bits per channel, no pipeline, multithreaded
+void simd_kern_8bpc_npl_smt(imgfile_t*, kern_t, size_t, size_t);
+
 // simd, apply kernel to pixel, 8 bits per channel, no pipeline
 void simd_kern_8bpc_npl(imgfile_t*, kern_t);
 

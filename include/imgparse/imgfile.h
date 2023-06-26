@@ -24,12 +24,6 @@ typedef union imgdata{
     imgdata_16bpc _16bpc;
 } imgdata_t;
 
-// typedef union img{
-//     bmp_img bmp;
-// } img_t;
-
-typedef uint8_t* img_t;
-
 typedef struct imgfile{
     char*         filename;
 
@@ -38,7 +32,6 @@ typedef struct imgfile{
     size_t        bit_depth;
     size_t        channels;
 
-    img_t         img;
     imgdata_t     imgdata;
     imgfiletype_t filetype;
 } imgfile_t;
