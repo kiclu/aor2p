@@ -25,16 +25,13 @@ static void insert_op_kernel(pnode_t** chain, op_t op, const char* filename){
 
     sscanf(filename, "%*[^.].kern%lux%lu", &t->arg.op_kern.n, &t->arg.op_kern.m);
     if(t->arg.op_kern.n == 0 || t->arg.op_kern.m == 0){
-        free(t);
-        // TODO: handle kernel file format invalid
-        return;
+        fprintf(stderr, "aor2p: error: kernel file invalid\n");
+        exit(EXIT_FAILURE);
     }
     FILE* fin = fopen(filename, "r");
     if(NULL == fin){
-        fprintf(stderr, "aor2p: error: kernel file not found");
-        free(t);
-        return;
-        // TODO: handle kernel file not found
+        fprintf(stderr, "aor2p: error: kernel file not found\n");
+        exit(EXIT_FAILURE);
     }
 
     t->arg.op_kern.kern = (float**)malloc(t->arg.op_kern.n * sizeof(float*));
@@ -81,25 +78,63 @@ static void insert_op_noarg(pnode_t** chain, op_t op){
 }
 
 #include<imgparse/imgparse.h>
+static void help_page(){
+    printf("aor2p  v1.0\n");
+    printf("Usage: ./aor2p input-file [options]\n");
+    printf("\n");
+    printf("Options:\n");
+    printf("    -a=<const>,   --add=<const>      Add constant\n");
+    printf("    -s=<const>,   --sub=<const>      Subtract constant\n");
+    printf("    -is=<const>,  --isub=<const>     Subtract from constant\n");
+    printf("    -m=<const>,   --mul=<const>      Multiply by constant\n");
+    printf("    -d=<const>,   --div=<const>      Divide by constant\n");
+    printf("    -id=<const>,  --idiv=<const>     Divide constant by pixel value\n");
+    printf("\n");
+    printf("    -as=<const>,  --adds=<const>     Add constant (with saturation)\n");
+    printf("    -ss=<const>,  --subs=<const>     Subtract constant (with saturation)\n");
+    printf("    -iss=<const>, --isubs=<const>    Subtract from constant (with saturation)\n");
+    printf("\n");
+    printf("    -p=<const>,   --pow=<const>      Raise every pixel to power of const.\n");
+    printf("    -l, --log                        Replace every pixel with logarithm base 2 of its value\n");
+    printf("    --abs                            Replace every pixel with absolute value of its value\n");
+    printf("    --min=<const>                    Replace every pixel with minimum of its value and constant\n");
+    printf("    --max=<const>                    Replace every pixel with maximum of its value and constant\n");
+    printf("\n");
+    printf("    -n,  --neg                       Apply negative filter to image\n");
+    printf("    -gs, --greyscale                 Apply greyscale filter to image\n");
+    printf("\n");
+    printf("    -k=<file>, --kern=<file>         Apply kernel filer to image. Expects a *.kernNxM file,\n");
+    printf("                                     N and M are height and width of kernel, respectively\n");
+    printf("\n");
+    printf("    -o=<file>                        Write to file, output file type must match input file type\n");
+    printf("Optimization flags:\n");
+    printf("    -s0                              No optimizations\n");
+    printf("    -s1                              [Reserved for future use]\n");
+    printf("    -s2                              SIMD, no pipeline\n");
+    printf("    -s3                              SIMD and pipeline, default\n");
+    printf("    --no-simd                        disable SIMD\n");
+    printf("    --no-pipeline                    disable pipeline\n");
+    printf("    --thread-count=<N>               enable multi-threading with N threads, -s3 only\n");
+}
 
 args_t* cliparse(int argc, const char** argv){
-    if(argc < 2) {
-        // TODO: print help page
+    if(argc < 2){
+        help_page();
         return NULL;
     }
 
     // initialize args structure
     args_t* args = NULL;
     if(NULL == (args = malloc(sizeof(args_t)))){
-        // TODO: couldn't allocate args error
-        return NULL;
+        fprintf(stderr, "aor2p: MEM_ERROR\n");
+        exit(EXIT_FAILURE);
     }
 
     // read input file
     args->imgfile = img_fread(argv[1]);
     if(NULL == args->imgfile){
-        free(args);
-        return NULL;
+        fprintf(stderr, "aor2p: error: input file invalid\n");
+        exit(EXIT_FAILURE);
     }
 
     // check for valid output file
@@ -111,19 +146,16 @@ args_t* cliparse(int argc, const char** argv){
     }
 
     if(!output_file_bmp && !output_file_png){
-        // TODO: no output file error
-        img_free(args->imgfile);
-        free(args);
-        return NULL;
+        fprintf(stderr, "aor2p: error: no output file specified\n");
+        exit(EXIT_FAILURE);
     }
 
     if(output_file_bmp && output_file_png){
-        // TODO: mismatched output filetypes error
-        img_free(args->imgfile);
-        free(args);
-        return NULL;
+        fprintf(stderr, "aor2p: error: input and output file types do not match\n");
+        exit(EXIT_FAILURE);
     }
 
+    // parse all optimization level flags
     args->thread_count = 0;
     args->no_pipeline = false;
     args->no_simd = false;
@@ -151,11 +183,16 @@ args_t* cliparse(int argc, const char** argv){
             if(argv[i] == strstr(argv[i], "--no-pipeline")) args->no_pipeline = true;
             if(argv[i] == strstr(argv[i], "--no-simd")) args->no_simd = true;
             if(argv[i] == strstr(argv[i], "--thread-count=") || argv[i] == strstr(argv[i], "--thread_count=")){
+                if(opt_level == -1) opt_level = 3;
+                if(opt_level != 3){
+                    fprintf(stderr, "aor2p: warning: multi-threading support is enabled only on -s3 optimization level\n");
+                }
                 args->thread_count = atoi(strchr(argv[i], '=') + 1);
             }
         }
     }
 
+    // parse all operations and create signal chain
     args->signal_chain = NULL;
     for(int i = 2; i < argc; ++i){
         if(argv[i] == strstr(argv[i], "-a=") || argv[i] == strstr(argv[i], "--add=")){
@@ -248,8 +285,9 @@ args_t* cliparse(int argc, const char** argv){
             insert_op_fileio(&args->signal_chain, OP_WR, strchr(argv[i], '=') + 1);
             continue;
         }
-
-        // TODO: handle parameter not recognized error
+        
+        //fprintf(stderr, "aor2p: error: unrecognized argument %s\n", argv[i]);
+        //exit(EXIT_FAILURE);
     }
 
 #ifdef  SIMDIP_VERBOSE
@@ -300,7 +338,7 @@ args_t* cliparse(int argc, const char** argv){
     return args;
 }
 
-static void free_kern(pnode_t* p){
+static void op_kern_free(pnode_t* p){
     for(size_t i = 0; i < p->arg.op_kern.n; ++i){
         free(p->arg.op_kern.kern[i]);
     }
@@ -312,7 +350,7 @@ void cliparse_free(args_t* args){
 
     pnode_t* p = args->signal_chain;
     for(pnode_t* i = p->next; i; i = i->next){
-        if(op_kern == i->type) free_kern(i);
+        if(op_kern == i->type) op_kern_free(i);
         free(p); p = i;
     }
     free(p);
