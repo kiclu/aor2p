@@ -33,8 +33,8 @@ static imgfile_t* img_fread_png(const char* filename){
     uint8_t* stbi_data;
     int h, w, c;
     if(NULL == (stbi_data = stbi_load(filename, &w, &h, &c, 4))){
-        // TODO: handle image load failed
-        // free(imgfile-filename);
+        fprintf(stderr, "aor2p: error: input file not found\n");
+        free(imgfile->filename);
         return NULL;
     }
     
