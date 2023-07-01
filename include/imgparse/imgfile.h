@@ -1,5 +1,5 @@
-#ifndef _AOR2P_IMGPARSE_IMGFILE_H
-#define _AOR2P_IMGPARSE_IMGFILE_H
+#ifndef _AOR2P_IMGPARSE_IMGFILE_H_
+#define _AOR2P_IMGPARSE_IMGFILE_H_
 
 #include<stdint.h>
 #include<stdlib.h>
@@ -36,4 +36,4 @@ typedef struct imgfile{
     imgfiletype_t filetype;
 } imgfile_t;
 
-#endif//_AOR2P_IMGPARSE_IMGFILE_H
+#endif//_AOR2P_IMGPARSE_IMGFILE_H_

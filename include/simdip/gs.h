@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_GS_H
-#define _SIMDIP_GS_H
+#ifndef _AOR2P_SIMDIP_GS_H_
+#define _AOR2P_SIMDIP_GS_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -18,4 +18,4 @@ void simd_gs_8bpc_npl(imgfile_t*);
 // no simd, convert to grayscale, 8 bits per channel, no pipeline
 void gs_8bpc_npl(imgfile_t*);
 
-#endif//_SIMDIP_GS_H
+#endif//_AOR2P_SIMDIP_GS_H_

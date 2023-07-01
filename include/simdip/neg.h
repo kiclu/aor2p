@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_NEG_H
-#define _SIMDIP_NEG_H
+#ifndef _AOR2P_SIMDIP_NEG_H_
+#define _AOR2P_SIMDIP_NEG_H_
 
 #include<simdip/subi.h>
 
@@ -23,4 +23,4 @@ inline void neg_8bpc_npl(imgfile_t* imgfile){
     subi_8bpc_npl(imgfile, 0xFF);
 }
 
-#endif//_SIMDIP_NEG_H
+#endif//_AOR2P_SIMDIP_NEG_H_

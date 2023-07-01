@@ -1,5 +1,5 @@
-#ifndef _CLIPARSE_H
-#define _CLIPARSE_H
+#ifndef _AOR2P_CLIPARSE_CLIPARSE_H_
+#define _AOR2P_CLIPARSE_CLIPARSE_H_
 
 #include<stdbool.h>
 
@@ -7,46 +7,28 @@
 #include<simdip/kern.h>
 
 typedef enum{
-    // -a=const, --add=const
     OP_ADD,
-    // -s=const, --sub=const
     OP_SUB,
-    // -is=const, --isub=const
     OP_ISUB,
-    // -m=const, --mul=const
     OP_MUL,
-    // -d=const, --div=const
     OP_DIV,
-    // -id=const, --idiv=const
     OP_IDIV,
 
-    // -as=const, --add-saturate=const
     OP_ADDS,
-    // -ss=const, --sub-saturate=const
     OP_SUBS,
-    // -iss=const, --isub-saturate=const
     OP_ISUBS,
 
-    // -p=const, --pow=const
     OP_POW,
-    // -l=const, --log=const
     OP_LOG,
-    // --abs
     OP_ABS,
-    // --min=const
     OP_MIN,
-    // --max=const
     OP_MAX,
 
-    // -n, --neg
     OP_NEG,
-    // -gs, --greyscale
     OP_GS,
 
-    // -k=filename, --kernel=filename
     OP_KERN,
 
-    // -o=filename
     OP_WR
 } op_t;
 
@@ -83,4 +65,4 @@ typedef struct args{
 args_t* cliparse(int argc, const char** argv);
 void cliparse_free(args_t* args);
 
-#endif//_CLIPARSE_H
+#endif//_AOR2__CLIPARSE_CLIPARSE_H_

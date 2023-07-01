@@ -78,8 +78,6 @@ static void simd_kern_8bpc(uint8_t** ptr_r, uint8_t** ptr_g, uint8_t** ptr_b, ke
 void simd_kern_8bpc_npl_smt(imgfile_t* imgfile, kern_t k, size_t si, size_t ei){
     for(size_t i = si; i < ei; ++i){
         for(size_t j = 0; j < imgfile->width - k.m; j += 8){
-//    for(size_t j = 0; j < imgfile->width - k.m; j += 8){
-//        for(size_t i = si; i < ei; ++i){
             simd_kern_8bpc(
                 imgfile->imgdata._8bpc.r,
                 imgfile->imgdata._8bpc.g,

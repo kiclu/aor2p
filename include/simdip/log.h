@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_LOG_H
-#define _SIMDIP_LOG_H
+#ifndef _AOR2P_SIMDIP_LOG_H_
+#define _AOR2P_SIMDIP_LOG_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -18,4 +18,4 @@ void simd_log_8bpc_npl(imgfile_t*);
 // no simd, log, 8 bits per channel, no pipeline
 void log_8bpc_npl(imgfile_t*);
 
-#endif//_SIMDIP_LOG_H
+#endif//_AOR2P_SIMDIP_LOG_H_

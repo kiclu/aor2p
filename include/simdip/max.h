@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_MAX_H
-#define _SIMDIP_MAX_H
+#ifndef _AOR2P_SIMDIP_MAX_H_
+#define _AOR2P_SIMDIP_MAX_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -18,4 +18,4 @@ void simd_max_8bpc_npl(imgfile_t*, uint8_t);
 // no simd, max, 8 bits per channel, no pipeline
 void max_8bpc_npl(imgfile_t*, uint8_t);
 
-#endif//_SIMDIP_MAX_H
+#endif//_AOR2P_SIMDIP_MAX_H_

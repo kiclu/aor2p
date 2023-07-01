@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_DIV_H
-#define _SIMDIP_DIV_H
+#ifndef _AOR2P_SIMDIP_DIV_H_
+#define _AOR2P_SIMDIP_DIV_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -18,4 +18,4 @@ void simd_div_8bpc_npl(imgfile_t*, uint8_t);
 // no simd, divide by constant, 8 bits per channel, no pipeline
 void div_8bpc_npl(imgfile_t*, uint8_t);
 
-#endif//_SIMDIP_DIV_H
+#endif//_AOR2P_SIMDIP_DIV_H_

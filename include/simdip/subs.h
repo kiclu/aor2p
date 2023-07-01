@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_SUBS_H
-#define _SIMDIP_SUBS_H
+#ifndef _AOR2P_SIMDIP_SUBS_H_
+#define _AOR2P_SIMDIP_SUBS_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -18,4 +18,4 @@ void simd_subs_8bpc_npl(imgfile_t*, uint8_t);
 // no simd, subtract constant from pixel, 8 bits per channel, no pipeline
 void subs_8bpc_npl(imgfile_t*, uint8_t);
 
-#endif//_SIMDIP_SUBS_H
+#endif//_AOR2P_SIMDIP_SUBS_H_

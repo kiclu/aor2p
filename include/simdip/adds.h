@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_ADDS_H
-#define _SIMDIP_ADDS_H
+#ifndef _AOR2P_SIMDIP_ADDS_H_
+#define _AOR2P_SIMDIP_ADDS_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -18,4 +18,4 @@ void simd_adds_8bpc_npl(imgfile_t*, uint8_t);
 // no simd, add constant, 8 bits per channel, no pipeline
 void adds_8bpc_npl(imgfile_t*, uint8_t);
 
-#endif//_SIMDIP_ADDS_H
+#endif//_AOR2_SIMDIP_ADDS_H_

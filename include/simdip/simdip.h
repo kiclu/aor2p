@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_H
-#define _SIMDIP_H
+#ifndef _AOR2P_SIMDIP_SIMDIP_H_
+#define _AOR2P_SIMDIP_SIMDIP_H_
 
 // basic arithmetic operations
 #include<simdip/add.h>
@@ -32,4 +32,5 @@
 
 uint64_t process(args_t*);
 
-#endif//_SIMDIP_H
+#endif//_AOR2P_SIMDIP_SIMDIP_H_
+

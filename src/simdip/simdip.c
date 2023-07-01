@@ -6,13 +6,13 @@
 
 static struct timespec timer_start(){
     struct timespec start_time;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_time);
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &start_time);
     return start_time;
 }
 
 static uint64_t timer_end(struct timespec start_time){
     struct timespec end_time;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_time);
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &end_time);
     return (end_time.tv_sec - start_time.tv_sec) * 1000000000UL + (end_time.tv_nsec - start_time.tv_nsec);;
 }
 

@@ -1,5 +1,5 @@
-#ifndef _SIMDIP_KERN_H
-#define _SIMDIP_KERN_H
+#ifndef _AOR2P_SIMDIP_KERN_H_
+#define _AOR2P_SIMDIP_KERN_H_
 
 #include<immintrin.h>
 #include<imgparse/imgfile.h>
@@ -10,7 +10,7 @@ OP_KERN
 apply kernel to image
 */
 
-typedef struct {
+typedef struct{
     float** kern;
     size_t n;
     size_t m;
@@ -30,4 +30,4 @@ void kern_8bpc_npl(imgfile_t*, kern_t);
 void kern_init(size_t, size_t);
 void kern_free();
 
-#endif//_SIMDIP_KERN_H
+#endif//_AOR2_SIMDIP_KERN_H_

@@ -1,5 +1,5 @@
-#ifndef _AOR2P_IMGPARSE_H
-#define _AOR2P_IMGPARSE_H
+#ifndef _AOR2P_IMGPARSE_IMGPARSE_H_
+#define _AOR2P_IMGPARSE_IMGPARSE_H_
 
 #include<imgparse/imgfile.h>
 
@@ -8,4 +8,4 @@ imgfile_t* img_fread(const char* filename);
 int img_fwrite(imgfile_t* imgfile, const char* filename);
 void img_free(imgfile_t* imgfile);
 
-#endif//_AOR2P_IMGPARSE_H
+#endif//_AOR2P_IMGPARSE_IMGPARSE_H_
