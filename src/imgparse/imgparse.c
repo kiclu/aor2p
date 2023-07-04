@@ -50,9 +50,9 @@ static imgfile_t* img_fread_png(const char* filename){
     imgfile->imgdata._8bpc.a = (uint8_t**)malloc(imgfile->height * sizeof(uint8_t*));
 
     for(size_t i = 0; i < imgfile->height; ++i){
-        imgfile->imgdata._8bpc.r[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
-        imgfile->imgdata._8bpc.g[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
-        imgfile->imgdata._8bpc.b[i] = (uint8_t*)aligned_alloc(32, imgfile->width);
+        imgfile->imgdata._8bpc.r[i] = (uint8_t*)aligned_alloc(64, imgfile->width);
+        imgfile->imgdata._8bpc.g[i] = (uint8_t*)aligned_alloc(64, imgfile->width);
+        imgfile->imgdata._8bpc.b[i] = (uint8_t*)aligned_alloc(64, imgfile->width);
         
         imgfile->imgdata._8bpc.a[i] = (uint8_t*)malloc(imgfile->width * sizeof(uint8_t));
     }
