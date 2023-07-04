@@ -1,4 +1,5 @@
 .global avx2_add_8bpc
+.global avx512_add_8bpc
 
 avx2_add_8bpc:
     vmovd           %ecx,       %xmm0
