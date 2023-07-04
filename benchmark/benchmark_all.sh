@@ -6,12 +6,12 @@ echo ======================================
 for arg in $args; do
     sum_s0=0
     for i in {1..10}; do
-        sum_s0=$(( $(./aor2p res/gouldian_finch.png $arg $arg $arg $arg $arg -o=benchmark_output.png -s0 $@ | grep 'time taken' | awk '{print $3}' | rev | cut -c 3- | rev) + $sum_s0 ))
+        sum_s0=$(( $(./aor2p res/gouldian_finch.png $arg $arg $arg $arg $arg -o=benchmark_output.png -s0 | grep 'time taken' | awk '{print $3}' | rev | cut -c 3- | rev) + $sum_s0 ))
     done 
 
     sum_s3=0
     for i in {1..10}; do
-        sum_s3=$(( $(./aor2p res/gouldian_finch.png $arg $arg $arg $arg $arg -o=benchmark_output.png -s3 $@ | grep 'time taken' | awk '{print $3}' | rev | cut -c 3- | rev) + $sum_s3 ))
+        sum_s3=$(( $(./aor2p res/gouldian_finch.png $arg $arg $arg $arg $arg -o=benchmark_output.png $@ | grep 'time taken' | awk '{print $3}' | rev | cut -c 3- | rev) + $sum_s3 ))
     done
     
     s0_avg=$( bc <<< "scale=2; $sum_s0 / 50" )

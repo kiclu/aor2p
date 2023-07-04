@@ -1,19 +1,31 @@
-.global simd_sub_8bpc
+.global avx2_sub_8bpc
 
-simd_sub_8bpc:
-    vmovd           %ecx,   %xmm0
-    vpbroadcastb    %xmm0,  %ymm0
+avx2_sub_8bpc:
+    vmovd           %ecx,       %xmm0
+    vpbroadcastb    %xmm0,      %ymm0
 
-    vmovdqa         (%rdi), %ymm1
-    vpsubb          %ymm0,  %ymm1,  %ymm1
-    vmovdqa         %ymm1,  (%rdi)
+    vmovdqa         0x00(%rdi), %ymm1
+    vpsubb          %ymm0,      %ymm1,      %ymm1
+    vmovdqa         %ymm1,      0x00(%rdi)
 
-    vmovdqa         (%rsi), %ymm1
-    vpsubb          %ymm0,  %ymm1,  %ymm1
-    vmovdqa         %ymm1,  (%rsi)
+    vmovdqa         0x00(%rsi), %ymm1
+    vpsubb          %ymm0,      %ymm1,      %ymm1
+    vmovdqa         %ymm1,      0x00(%rsi)
 
-    vmovdqa         (%rdx), %ymm1
-    vpsubb          %ymm0,  %ymm1,  %ymm1
-    vmovdqa         %ymm1,  (%rdx)
+    vmovdqa         0x00(%rdx), %ymm1
+    vpsubb          %ymm0,      %ymm1,      %ymm1
+    vmovdqa         %ymm1,      0x00(%rdx)
+
+    vmovdqa         0x20(%rdi), %ymm1
+    vpsubb          %ymm0,      %ymm1,      %ymm1
+    vmovdqa         %ymm1,      0x20(%rdi)
+
+    vmovdqa         0x20(%rsi), %ymm1
+    vpsubb          %ymm0,      %ymm1,      %ymm1
+    vmovdqa         %ymm1,      0x20(%rsi)
+
+    vmovdqa         0x20(%rdx), %ymm1
+    vpsubb          %ymm0,      %ymm1,      %ymm1
+    vmovdqa         %ymm1,      0x20(%rdx)
 
     ret

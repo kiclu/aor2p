@@ -22,7 +22,7 @@ void simd_pow_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i vres_r[] = {_mm256_set1_epi16(1), _mm256_set1_epi16(1)};
     __m256i vpow_r[] = {va_r[0], va_r[1]};
     for(uint8_t pc = c; pc; pc >>= 1){
-        if(pc & 0b1){
+        if(pc & 0x1){
             vres_r[0] = _mm256_mullo_epi16(vres_r[0], vpow_r[0]);
             vres_r[1] = _mm256_mullo_epi16(vres_r[1], vpow_r[1]);
         }
@@ -46,7 +46,7 @@ void simd_pow_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i vres_g[] = {_mm256_set1_epi16(1), _mm256_set1_epi16(1)};
     __m256i vpow_g[] = {va_g[0], va_g[1]};
     for(uint8_t pc = c; pc; pc >>= 1){
-        if(pc & 0b1){
+        if(pc & 0x1){
             vres_g[0] = _mm256_mullo_epi16(vres_g[0], vpow_g[0]);
             vres_g[1] = _mm256_mullo_epi16(vres_g[1], vpow_g[1]);
         }
@@ -70,7 +70,7 @@ void simd_pow_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i vres_b[] = {_mm256_set1_epi16(1), _mm256_set1_epi16(1)};
     __m256i vpow_b[] = {va_b[0], va_b[1]};
     for(uint8_t pc = c; pc; pc >>= 1){
-        if(pc & 0b1){
+        if(pc & 0x1){
             vres_b[0] = _mm256_mullo_epi16(vres_b[0], vpow_b[0]);
             vres_b[1] = _mm256_mullo_epi16(vres_b[1], vpow_b[1]);
         }

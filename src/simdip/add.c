@@ -5,9 +5,6 @@ OP_ADD
 add a constant to every pixel in the image
 */
 
-// simd, add constant, 8 bits per channel, pipeline
-extern void simd_add_8bpc(uint8_t*, uint8_t*, uint8_t*, uint8_t);
-
 // simd, add constant, 8 bits per channel, no pipeline
 void simd_add_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){

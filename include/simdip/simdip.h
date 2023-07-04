@@ -1,6 +1,10 @@
 #ifndef _AOR2P_SIMDIP_SIMDIP_H_
 #define _AOR2P_SIMDIP_SIMDIP_H_
 
+#ifndef __AVX2__
+#error "AVX2 not enabled / not supported"
+#endif//__AVX2__
+
 // basic arithmetic operations
 #include<simdip/add.h>
 #include<simdip/sub.h>

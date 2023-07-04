@@ -8,16 +8,6 @@ replace every pixel of image with minimum its value and constant
 // cmpgt
 // dst[i+15:i] := ( a[i+15:i] > b[i+15:i] ) ? 0xFFFF : 0
 
-// simd, min, 8 bits per channel, pipeline
-void simd_min_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
-    __m256i vres_r = _mm256_min_epu8(_mm256_load_si256((__m256i*)ptr_r), _mm256_set1_epi8(c));
-    __m256i vres_g = _mm256_min_epu8(_mm256_load_si256((__m256i*)ptr_g), _mm256_set1_epi8(c));
-    __m256i vres_b = _mm256_min_epu8(_mm256_load_si256((__m256i*)ptr_b), _mm256_set1_epi8(c));
-    _mm256_store_si256((__m256i*)ptr_r, vres_r);
-    _mm256_store_si256((__m256i*)ptr_g, vres_g);
-    _mm256_store_si256((__m256i*)ptr_b, vres_b);
-}
-
 static inline uint8_t min(uint8_t a, uint8_t b){ return a < b ? a : b; }
 
 // simd, min, 8 bits per channel, no pipeline

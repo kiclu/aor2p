@@ -5,9 +5,6 @@ OP_SUB
 subtract a constant from every pixel in the image
 */
 
-// simd, sub constant, 8 bits per channel, pipeline
-extern void simd_sub_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c);
-
 // simd, sub constant, 8 bits per channel, no pipeline
 void simd_sub_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){

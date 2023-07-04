@@ -6,13 +6,13 @@
 
 static struct timespec timer_start(){
     struct timespec start_time;
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &start_time);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_time);
     return start_time;
 }
 
 static uint64_t timer_end(struct timespec start_time){
     struct timespec end_time;
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &end_time);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_time);
     return (end_time.tv_sec - start_time.tv_sec) * 1000000000UL + (end_time.tv_nsec - start_time.tv_nsec);;
 }
 
@@ -56,7 +56,20 @@ static uint64_t process_ns_np(args_t* args){
 
 // process, no simd & pipeline
 static uint64_t process_ns(args_t* args){
-    // TODO: implement
+/*
+    pnode_t* start_s = args->signal_chain;
+    pnode_t* end_s = args->signal_chain;
+    while(start_s){
+        for(size_t i = 0; i < args->imgfile->height; ++i){
+
+            size_t j = 0;
+            for(j = 0; j < (args->imgfile->width & ~0x1F); j += 32){
+                pnode_t* s = start_s;
+                //for(; s
+            }
+    }
+*/
+
     return 0;
 }
 
@@ -98,8 +111,6 @@ static uint64_t process_np(args_t* args){
     return timer_end(start_time) - write_time;
 }
 
-#define rgb_ptrs ptr_r + j, ptr_g + j, ptr_b + j
-
 // process, simd & pipeline
 static uint64_t process_st(args_t* args){
     struct timespec start_time = timer_start();
@@ -113,29 +124,29 @@ static uint64_t process_st(args_t* args){
             uint8_t* ptr_b = args->imgfile->imgdata._8bpc.b[i];
 
             size_t j = 0;
-            for(; j < (args->imgfile->width & ~0x1F); j += 32){
+            for(; j < (args->imgfile->width & ~0x3F); j += 64){
                 pnode_t* s = start_s;
                 for(; s && OP_WR != s->op && OP_KERN != s->op; s = s->next){
                     switch(s->op){
-                        case OP_ADD:    simd_add_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUB:    simd_sub_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUB:   simd_subi_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MUL:    simd_mul_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_DIV:    simd_div_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_IDIV:   simd_divi_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADD:    simd_add_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_SUB:    simd_sub_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_ISUB:   simd_subi_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_MUL:    simd_mul_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_DIV:    simd_div_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_IDIV:   simd_divi_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
 
-                        case OP_ADDS:   simd_adds_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUBS:   simd_subs_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUBS:  simd_subis_8bpc (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADDS:   simd_adds_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_SUBS:   simd_subs_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_ISUBS:  simd_subis_8bpc (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
 
-                        case OP_POW:    simd_pow_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_LOG:    simd_log_8bpc   (rgb_ptrs);                  break;
-                        case OP_ABS:    simd_abs_8bpc   (rgb_ptrs);                  break;
-                        case OP_MIN:    simd_min_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MAX:    simd_max_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_POW:    simd_pow_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_LOG:    simd_log_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
+                        case OP_ABS:    simd_abs_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
+                        case OP_MIN:    simd_min_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_MAX:    simd_max_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
 
-                        case OP_NEG:    simd_neg_8bpc   (rgb_ptrs);                  break;
-                        case OP_GS:     simd_gs_8bpc    (rgb_ptrs);                  break;
+                        case OP_NEG:    simd_neg_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
+                        case OP_GS:     simd_gs_8bpc    (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
 
                         case OP_KERN:   break;
                         case OP_WR:     break;
@@ -177,6 +188,8 @@ typedef struct{
     pthread_barrier_t* barrier_wr;
 } process_worker_arg_t;
 
+#include<stdio.h>
+
 static void* process_smt_worker(void* arg){
     process_worker_arg_t* warg = (process_worker_arg_t*)arg;
     args_t* args = warg->args;
@@ -192,29 +205,29 @@ static void* process_smt_worker(void* arg){
             uint8_t* ptr_b = args->imgfile->imgdata._8bpc.b[i];
 
             size_t j = 0;
-            for(; j < (args->imgfile->width & ~0x1F); j += 32){
+            for(; j < (args->imgfile->width & ~0x7F); j += 64){
                 pnode_t* s = start_s;
                 for(; s && OP_WR != s->op && OP_KERN != s->op; s = s->next){
                     switch(s->op){
-                        case OP_ADD:    simd_add_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUB:    simd_sub_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUB:   simd_subi_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MUL:    simd_mul_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_DIV:    simd_div_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_IDIV:   simd_divi_8bpc  (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADD:    simd_add_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_SUB:    simd_sub_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_ISUB:   simd_subi_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_MUL:    simd_mul_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_DIV:    simd_div_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_IDIV:   simd_divi_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
 
-                        case OP_ADDS:   simd_adds_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_SUBS:   simd_subs_8bpc  (rgb_ptrs, s->arg.op_const); break;
-                        case OP_ISUBS:  simd_subis_8bpc (rgb_ptrs, s->arg.op_const); break;
+                        case OP_ADDS:   simd_adds_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_SUBS:   simd_subs_8bpc  (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_ISUBS:  simd_subis_8bpc (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
 
-                        case OP_POW:    simd_pow_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_LOG:    simd_log_8bpc   (rgb_ptrs);                  break;
-                        case OP_ABS:    simd_abs_8bpc   (rgb_ptrs);                  break;
-                        case OP_MIN:    simd_min_8bpc   (rgb_ptrs, s->arg.op_const); break;
-                        case OP_MAX:    simd_max_8bpc   (rgb_ptrs, s->arg.op_const); break;
+                        case OP_POW:    simd_pow_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_LOG:    simd_log_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
+                        case OP_ABS:    simd_abs_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
+                        case OP_MIN:    simd_min_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
+                        case OP_MAX:    simd_max_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j, s->arg.op_const); break;
 
-                        case OP_NEG:    simd_neg_8bpc   (rgb_ptrs);                  break;
-                        case OP_GS:     simd_gs_8bpc    (rgb_ptrs);                  break;
+                        case OP_NEG:    simd_neg_8bpc   (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
+                        case OP_GS:     simd_gs_8bpc    (ptr_r + j, ptr_g + j, ptr_b + j);                  break;
 
                         case OP_KERN:   break;
                         case OP_WR:     break;

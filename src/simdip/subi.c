@@ -5,17 +5,6 @@ OP_SUBI
 subtract every pixel in image from constant
 */
 
-// simd, sub from constant, 8 bits per channel, pipeline
-void simd_subi_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
-    __m256i vc = _mm256_set1_epi8(c);
-    __m256i va_r = _mm256_load_si256((__m256i*)ptr_r);
-    __m256i va_g = _mm256_load_si256((__m256i*)ptr_g);
-    __m256i va_b = _mm256_load_si256((__m256i*)ptr_b);
-    _mm256_store_si256((__m256i*)ptr_r, _mm256_sub_epi8(vc, va_r));
-    _mm256_store_si256((__m256i*)ptr_g, _mm256_sub_epi8(vc, va_g));
-    _mm256_store_si256((__m256i*)ptr_b, _mm256_sub_epi8(vc, va_b));
-}
-
 // simd, sub from constant, 8 bits per channel, no pipeline
 void simd_subi_8bpc_npl(imgfile_t* imgfile, uint8_t c){
     for(size_t i = 0; i < imgfile->height; ++i){
