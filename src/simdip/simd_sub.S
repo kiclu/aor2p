@@ -1,4 +1,5 @@
 .global avx2_sub_8bpc
+.global avx512_sub_8bpc
 
 avx2_sub_8bpc:
     vmovd           %ecx,       %xmm0
@@ -27,5 +28,22 @@ avx2_sub_8bpc:
     vmovdqa         0x20(%rdx), %ymm1
     vpsubb          %ymm0,      %ymm1,      %ymm1
     vmovdqa         %ymm1,      0x20(%rdx)
+
+    ret
+
+avx512_sub_8bpc:
+    vpbroadcastb    %ecx,       %zmm0
+
+    vmovdqa32       (%rdi),     %zmm1
+    vpsubb          %zmm0,      %zmm1,      %zmm1
+    vmovdqa         %zmm1,      (%rdi)
+
+    vmovdqa32       (%rsi),     %zmm1
+    vpsubb          %zmm0,      %zmm1,      %zmm1
+    vmovdqa         %zmm1,      (%rsi)
+
+    vmovdqa32       (%rxi),     %zmm1
+    vpsubb          %zmm0,      %zmm1,      %zmm1
+    vmovdqa         %zmm1,      (%rdx)
 
     ret
