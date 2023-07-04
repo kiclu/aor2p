@@ -42,7 +42,7 @@ avx512_sub_8bpc:
     vpsubb          %zmm0,      %zmm1,      %zmm1
     vmovdqa         %zmm1,      (%rsi)
 
-    vmovdqa32       (%rxi),     %zmm1
+    vmovdqa32       (%rdx),     %zmm1
     vpsubb          %zmm0,      %zmm1,      %zmm1
     vmovdqa         %zmm1,      (%rdx)
 
