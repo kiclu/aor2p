@@ -5,6 +5,7 @@ OP_DIVI
 divide constant by every pixel in the image
 */
 
+/*
 // simd, divide constant by pixel, 8 bits per channel, pipeline
 void simd_divi_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256 vr[] = {
@@ -85,7 +86,7 @@ void simd_divi_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     _mm256_store_si256((__m256i*)ptr_g, vres_g);
     _mm256_store_si256((__m256i*)ptr_b, vres_b);
 }
-
+*/
 static inline uint8_t _divi(uint8_t a, uint8_t b){
     return b ? a / b : 0;
 }
@@ -99,7 +100,7 @@ void simd_divi_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
         size_t j = 0;
         for(j = 0; j < (imgfile->width & ~0x1F); j += 32){
-            simd_div_8bpc(ptr_r, ptr_b, ptr_g, c);
+            // simd_div_8bpc(ptr_r, ptr_b, ptr_g, c);
         }
 
         for(; j < imgfile->width; ++j){

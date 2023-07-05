@@ -1,19 +1,20 @@
-.global simd_subi_8bpc
+.global avx2_subi_8bpc
+.global avx512_subi_8bpc
 
-simd_subi_8bpc:
-    vmovd           %ecx,   %xmm0
-    vpbroadcastb    %xmm0,  %ymm0
+avx2_subi_8bpc:
+    vmovd           %edi,       %xmm15
+    vpbroadcastb    %xmm15,     %ymm15
 
-    vmovdqa         (%rdi), %ymm1
-    vpsubb          %ymm1,  %ymm0,  %ymm1
-    vmovdqa         %ymm1,  (%rdi)
+    vpsubb          %ymm0,      %ymm15,     %ymm0
+    vpsubb          %ymm1,      %ymm15,     %ymm1
 
-    vmovdqa         (%rsi), %ymm1
-    vpsubb          %ymm1,  %ymm0,  %ymm1
-    vmovdqa         %ymm1,  (%rsi)
+    vpsubb          %ymm2,      %ymm15,     %ymm2
+    vpsubb          %ymm3,      %ymm15,     %ymm3
 
-    vmovdqa         (%rdx), %ymm1
-    vpsubb          %ymm1,  %ymm0,  %ymm1
-    vmovdqa         %ymm1,  (%rdx)
+    vpsubb          %ymm4,      %ymm15,     %ymm4
+    vpsubb          %ymm5,      %ymm15,     %ymm5
 
+    ret
+
+avx512_subi_8bpc:
     ret

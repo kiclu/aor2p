@@ -20,7 +20,7 @@ void simd_log_8bpc_npl(imgfile_t* imgfile){
 
         size_t j = 0;
         for(j = 0; j < (imgfile->width & ~0x1F); j += 32){
-            simd_log_8bpc(ptr_r, ptr_g, ptr_b);
+            // simd_log_8bpc(ptr_r, ptr_g, ptr_b);
         }
 
         for(; j < imgfile->width; ++j){

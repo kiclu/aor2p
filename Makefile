@@ -29,6 +29,7 @@ all: ${TARGET}
 
 ${TARGET}: ${OBJECTS} | ${DIR_BUILD}
 	${CC} -o ${TARGET} ${OBJECTS} -lm -pthread
+	${OBJDUMP} -S ${TARGET} > ${TARGET}.asm
 
 ${DIR_BUILD}/%.o: %.s Makefile | ${DIR_BUILD}
 	@mkdir -p $(dir ${@})

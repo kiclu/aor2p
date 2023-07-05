@@ -7,6 +7,7 @@ raise every pixel of image to power of constant
 
 // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
 
+/*
 // simd, pow, 8 bits per channel, pipeline
 void simd_pow_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     __m256i va_r[] = {
@@ -80,7 +81,7 @@ void simd_pow_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c){
     }
     _mm256_store_si256((__m256i*)ptr_b, _mm256_packus_epi16(vres_b[0], vres_b[1]));
 }
-
+*/
 #include<math.h>
 
 // simd, pow, 8 bits per channel, no pipeline
@@ -92,7 +93,7 @@ void simd_pow_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
         size_t j = 0;
         for(j = 0; j < (imgfile->width & ~0x1F); j += 32){
-            simd_pow_8bpc(ptr_r, ptr_b, ptr_g, c);
+            // simd_pow_8bpc(ptr_r, ptr_b, ptr_g, c);
         }
 
         for(; j < imgfile->width; ++j){

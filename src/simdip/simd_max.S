@@ -1,19 +1,20 @@
-.global simd_max_8bpc
+.global avx2_max_8bpc
+.global avx512_max_8bpc
 
-simd_max_8bpc:
-    vmovd           %ecx,   %xmm0
-    vpbroadcastb    %xmm0,  %ymm0
+avx2_max_8bpc:
+    vmovd           %edi,       %xmm15
+    vpbroadcastb    %xmm15,     %ymm15
 
-    vmovdqa         (%rdi), %ymm1
-    vpmaxub         %ymm0,  %ymm1,  %ymm1
-    vmovdqa         %ymm1,  (%rdi)
+    vpmaxub         %ymm15,     %ymm0,      %ymm0
+    vpmaxub         %ymm15,     %ymm1,      %ymm2
 
-    vmovdqa         (%rsi), %ymm1
-    vpmaxub         %ymm0,  %ymm1,  %ymm1
-    vmovdqa         %ymm1,  (%rsi)
+    vpmaxub         %ymm15,     %ymm2,      %ymm2
+    vpmaxub         %ymm15,     %ymm3,      %ymm3
 
-    vmovdqa         (%rdx), %ymm1
-    vpmaxub         %ymm0,  %ymm1,  %ymm1
-    vmovdqa         %ymm1,  (%rdx)
+    vpmaxub         %ymm15,     %ymm4,      %ymm4
+    vpmaxub         %ymm15,     %ymm5,      %ymm5
 
+    ret
+
+avx512_max_8bpc:
     ret

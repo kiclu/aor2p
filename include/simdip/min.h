@@ -9,8 +9,17 @@ OP_MIN
 replace every pixel of image with minimum its value and constant
 */
 
-// simd, min, 8 bits per channel, pipeline
-void simd_min_8bpc(uint8_t*, uint8_t*, uint8_t*, uint8_t);
+#ifdef  __AVX512BW__
+
+extern void avx512_min_8bpc(uint8_t c);
+#define simd_min_8bpc(c) avx512_min_8bpc(c)
+
+#else
+
+extern void avx2_min_8bpc(uint8_t c);
+#define simd_min_8bpc(c) avx2_min_8bpc(c)
+
+#endif//__AVX512BW__
 
 // simd, min, 8 bits per channel, no pipeline
 void simd_min_8bpc_npl(imgfile_t*, uint8_t);

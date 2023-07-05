@@ -14,7 +14,7 @@ void simd_subi_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
         size_t j = 0;
         for(; j < (imgfile->width & ~0x1F); j += 32){
-            simd_subi_8bpc(ptr_r + j, ptr_g + j, ptr_b + j, c);
+            // simd_subi_8bpc(ptr_r + j, ptr_g + j, ptr_b + j, c);
         }
         
         for(; j < imgfile->width; ++j){

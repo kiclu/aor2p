@@ -32,6 +32,8 @@
 // kernel filter
 #include<simdip/kern.h>
 
+#include<simdip/reg.h>
+
 #include<cliparse/cliparse.h>
 
 uint64_t process(args_t*);
