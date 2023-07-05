@@ -1,140 +1,76 @@
-.global simd_mul_8bpc
+.global avx2_mul_8bpc
+.global avx512_mul_8bpc
 
-simd_mul_8bpc:
-    # set broadcast constant c to YMM0
-    vmovd           %ecx,       %xmm0
-    vpbroadcastw    %xmm0,      %ymm0
+avx2_mul_8bpc:
+    vmovd           %edi,       %xmm15
+    vpbroadcastw    %xmm15,     %ymm15
+    
+# RED CHANNEL
+    vpermq          $0x08,      %ymm0,      %ymm6
+    vpermq          $0x0D,      %ymm0,      %ymm7
 
-    # red channel
-    movdqu          0x00(%rdi), %xmm1
-    pmovzxbw        %xmm1,      %xmm1
+    vpmovzxbw       %xmm6,      %ymm6
+    vpmovzxbw       %xmm7,      %ymm7
+    
+    vpmullw         %ymm15,     %ymm6,      %ymm6
+    vpmullw         %ymm15,     %ymm7,      %ymm7
+    vpackuswb       %ymm7,      %ymm6,      %ymm0
 
-    movdqu          0x10(%rdi), %xmm2
-    pmovzxbw        %xmm2,      %xmm2
+    vpermq          $0x08,      %ymm1,      %ymm6
+    vpermq          $0x0D,      %ymm1,      %ymm7
 
-    vinserti128     $0x01,      %xmm2,      %ymm1,      %ymm1
-    vpmullw         %ymm0,      %ymm1,      %ymm1
-
-    movdqu          0x08(%rdi), %xmm2
-    pmovzxbw        %xmm2,      %xmm2
-
-    movdqu          0x18(%rdi), %xmm3
-    pmovzxbw        %xmm3,      %xmm3
-
-    vinserti128     $0x01,      %xmm3,      %ymm2,      %ymm2
-    vpmullw         %ymm0,      %ymm2,      %ymm2
-
-    vpackuswb       %ymm2,      %ymm1,      %ymm1
-    vmovdqa         %ymm1,      0x00(%rdi)
-
-    movdqu          0x20(%rdi), %xmm4
-    pmovzxbw        %xmm4,      %xmm4
-
-    movdqu          0x30(%rdi), %xmm5
-    pmovzxbw        %xmm5,      %xmm5
-
-    vinserti128     $0x01,      %xmm5,      %ymm4,      %ymm4
-    vpmullw         %ymm0,      %ymm4,      %ymm4
-
-    movdqu          0x28(%rdi), %xmm5
-    pmovzxbw        %xmm5,      %xmm5
-
-    movdqu          0x38(%rdi), %xmm6
-    pmovzxbw        %xmm6,      %xmm6
-
-    vinserti128     $0x01,      %xmm6,      %ymm5,      %ymm5
-    vpmullw         %ymm0,      %ymm5,      %ymm5
-
-    vpackuswb       %ymm5,      %ymm4,      %ymm4
-    vmovdqa         %ymm4,      0x20(%rdi)
+    vpmovzxbw       %xmm6,      %ymm6
+    vpmovzxbw       %xmm7,      %ymm7
+    
+    vpmullw         %ymm15,     %ymm6,      %ymm6
+    vpmullw         %ymm15,     %ymm7,      %ymm7
+    vpackuswb       %ymm7,      %ymm6,      %ymm1
 
 
-    # green channel
-    movdqu          0x00(%rsi), %xmm1
-    pmovzxbw        %xmm1,      %xmm1
+# BLUE CHANNEL
+    vpermq          $0x08,      %ymm2,      %ymm6
+    vpermq          $0x0D,      %ymm2,      %ymm7
 
-    movdqu          0x10(%rsi), %xmm2
-    pmovzxbw        %xmm2,      %xmm2
+    vpmovzxbw       %xmm6,      %ymm6
+    vpmovzxbw       %xmm7,      %ymm7
+    
+    vpmullw         %ymm15,     %ymm6,      %ymm6
+    vpmullw         %ymm15,     %ymm7,      %ymm7
+    vpackuswb       %ymm7,      %ymm6,      %ymm2
 
-    vinserti128     $0x01,      %xmm2,      %ymm1,      %ymm1
-    vpmullw         %ymm0,      %ymm1,      %ymm1
+    vpermq          $0x08,      %ymm3,      %ymm6
+    vpermq          $0x0D,      %ymm3,      %ymm7
 
-    movdqu          0x08(%rsi), %xmm2
-    pmovzxbw        %xmm2,      %xmm2
-
-    movdqu          0x18(%rsi), %xmm3
-    pmovzxbw        %xmm3,      %xmm3
-
-    vinserti128     $0x01,      %xmm3,      %ymm2,      %ymm2
-    vpmullw         %ymm0,      %ymm2,      %ymm2
-
-    vpackuswb       %ymm2,      %ymm1,      %ymm1
-    vmovdqa         %ymm1,      0x00(%rsi)
-
-    movdqu          0x20(%rsi), %xmm4
-    pmovzxbw        %xmm4,      %xmm4
-
-    movdqu          0x30(%rsi), %xmm5
-    pmovzxbw        %xmm5,      %xmm5
-
-    vinserti128     $0x01,      %xmm5,      %ymm4,      %ymm4
-    vpmullw         %ymm0,      %ymm4,      %ymm4
-
-    movdqu          0x28(%rsi), %xmm5
-    pmovzxbw        %xmm5,      %xmm5
-
-    movdqu          0x38(%rsi), %xmm6
-    pmovzxbw        %xmm6,      %xmm6
-
-    vinserti128     $0x01,      %xmm6,      %ymm5,      %ymm5
-    vpmullw         %ymm0,      %ymm5,      %ymm5
-
-    vpackuswb       %ymm5,      %ymm4,      %ymm4
-    vmovdqa         %ymm4,      0x20(%rsi)
+    vpmovzxbw       %xmm6,      %ymm6
+    vpmovzxbw       %xmm7,      %ymm7
+    
+    vpmullw         %ymm15,     %ymm6,      %ymm6
+    vpmullw         %ymm15,     %ymm7,      %ymm7
+    vpackuswb       %ymm7,      %ymm6,      %ymm3
 
 
-   # blue channel
-    movdqu          0x00(%rdx), %xmm1
-    pmovzxbw        %xmm1,      %xmm1
+# GREEN CHANNEL
+    vpermq          $0x08,      %ymm4,      %ymm6
+    vpermq          $0x0D,      %ymm4,      %ymm7
 
-    movdqu          0x10(%rdx), %xmm2
-    pmovzxbw        %xmm2,      %xmm2
+    vpmovzxbw       %xmm6,      %ymm6
+    vpmovzxbw       %xmm7,      %ymm7
+    
+    vpmullw         %ymm15,     %ymm6,      %ymm6
+    vpmullw         %ymm15,     %ymm7,      %ymm7
+    vpackuswb       %ymm7,      %ymm6,      %ymm4
 
-    vinserti128     $0x01,      %xmm2,      %ymm1,      %ymm1
-    vpmullw         %ymm0,      %ymm1,      %ymm1
+    vpermq          $0x08,      %ymm5,      %ymm6
+    vpermq          $0x0D,      %ymm5,      %ymm7
 
-    movdqu          0x08(%rdx), %xmm2
-    pmovzxbw        %xmm2,      %xmm2
+    vpmovzxbw       %xmm6,      %ymm6
+    vpmovzxbw       %xmm7,      %ymm7
+    
+    vpmullw         %ymm15,     %ymm6,      %ymm6
+    vpmullw         %ymm15,     %ymm7,      %ymm7
+    vpackuswb       %ymm7,      %ymm6,      %ymm5
+   
+    ret
 
-    movdqu          0x18(%rdx), %xmm3
-    pmovzxbw        %xmm3,      %xmm3
-
-    vinserti128     $0x01,      %xmm3,      %ymm2,      %ymm2
-    vpmullw         %ymm0,      %ymm2,      %ymm2
-
-    vpackuswb       %ymm2,      %ymm1,      %ymm1
-    vmovdqa         %ymm1,      0x00(%rdx)
-
-    movdqu          0x20(%rdx), %xmm4
-    pmovzxbw        %xmm4,      %xmm4
-
-    movdqu          0x30(%rdx), %xmm5
-    pmovzxbw        %xmm5,      %xmm5
-
-    vinserti128     $0x01,      %xmm5,      %ymm4,      %ymm4
-    vpmullw         %ymm0,      %ymm4,      %ymm4
-
-    movdqu          0x28(%rdx), %xmm5
-    pmovzxbw        %xmm5,      %xmm5
-
-    movdqu          0x38(%rdx), %xmm6
-    pmovzxbw        %xmm6,      %xmm6
-
-    vinserti128     $0x01,      %xmm6,      %ymm5,      %ymm5
-    vpmullw         %ymm0,      %ymm5,      %ymm5
-
-    vpackuswb       %ymm5,      %ymm4,      %ymm4
-    vmovdqa         %ymm4,      0x20(%rdx)
-
-
+avx512_mul_8bpc:
     ret

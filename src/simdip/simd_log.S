@@ -1,17 +1,16 @@
-.global simd_log_8bpc
+.global avx2_log_8bpc
+.global avx512_log_8bpc
 
-simd_log_8bpc:
+avx2_log_8bpc:
     mov             $0x7f,  %eax
     vmovd           %eax,   %xmm0
     vpbroadcastb    %xmm0,  %xmm0
 
-    movq            0x00(%rdi), %xmm1
     vpmovzxbd       %xmm1,      %ymm1
     vcvtdq2ps       %ymm1,      %ymm1
     #vpsrld          $0x17,      %ymm1,      %ymm1
     #vpsubq          %ymm0,      %ymm1,      %ymm1
 
-    movq            0x08(%rdi), %xmm2
     vpmovzxbd       %xmm2,      %ymm2
     vcvtdq2ps       %ymm2,      %ymm2
     #vpsrld          $0x17,      %ymm2,      %ymm2

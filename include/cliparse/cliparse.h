@@ -19,10 +19,10 @@ typedef enum{
     OP_ISUBS,
 
     OP_POW,
-    OP_LOG,
-    OP_ABS,
     OP_MIN,
     OP_MAX,
+    OP_LOG,
+    OP_ABS,
 
     OP_NEG,
     OP_GS,
