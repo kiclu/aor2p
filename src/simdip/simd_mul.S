@@ -11,6 +11,7 @@ avx2_mul_8bpc:
     vpermq          $0x08,      %ymm1,      %ymm8
     vpermq          $0x0D,      %ymm1,      %ymm9
 
+    vpmovzxbw       %xmm6,      %ymm6
     vpmovzxbw       %xmm7,      %ymm7
     vpmovzxbw       %xmm8,      %ymm8
     vpmovzxbw       %xmm9,      %ymm9
