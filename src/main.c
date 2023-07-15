@@ -1,8 +1,8 @@
 #include<stdio.h>
 
-#include<imgparse/imgparse.h>
-#include<cliparse/cliparse.h>
-#include<simdip/simdip.h>
+#include<img/imgparse.h>
+#include<cli/parse.h>
+#include<ip.h>
 
 int main(int argc, const char** argv){
     args_t* args = cliparse(argc, argv);

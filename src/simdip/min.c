@@ -1,4 +1,4 @@
-#include<simdip/min.h>
+#include<op/min.h>
 
 /*
 OP_MIN

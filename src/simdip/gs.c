@@ -1,4 +1,4 @@
-#include<simdip/gs.h>
+#include<op/gs.h>
 
 /*
 // simd, convert to grayscale, 8 bits per channel, pipeline

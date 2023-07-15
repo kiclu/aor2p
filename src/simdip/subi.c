@@ -1,4 +1,4 @@
-#include<simdip/subi.h>
+#include<op/subi.h>
 
 /*
 OP_SUBI

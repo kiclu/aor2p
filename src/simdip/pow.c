@@ -1,4 +1,4 @@
-#include<simdip/pow.h>
+#include<op/pow.h>
 
 /*
 OP_POW

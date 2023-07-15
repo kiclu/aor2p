@@ -1,4 +1,4 @@
-#include<simdip/div.h>
+#include<op/div.h>
 
 /*
 OP_DIVI

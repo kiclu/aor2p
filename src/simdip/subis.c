@@ -1,4 +1,4 @@
-#include<simdip/subis.h>
+#include<op/subis.h>
 
 /*
 OP_SUBIS
