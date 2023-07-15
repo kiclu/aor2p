@@ -2,15 +2,13 @@
 .global avx512_add_8bpc
 
 avx2_add_8bpc:
-    vmovd           %edi,       %xmm15
+    vmovd           %rdi,       %xmm15
     vpbroadcastb    %xmm15,     %ymm15
 
     vpaddb          %ymm15,     %ymm0,      %ymm0
     vpaddb          %ymm15,     %ymm1,      %ymm1
-
     vpaddb          %ymm15,     %ymm2,      %ymm2
     vpaddb          %ymm15,     %ymm3,      %ymm3
-
     vpaddb          %ymm15,     %ymm4,      %ymm4
     vpaddb          %ymm15,     %ymm5,      %ymm5
 

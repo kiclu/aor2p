@@ -36,4 +36,4 @@ typedef struct imgfile{
     imgfiletype_t filetype;
 } imgfile_t;
 
-#endif//_AOR2P_IMG_IMGFILE_H_
+#endif//_AOR2P_IMG_IMGFILE_H

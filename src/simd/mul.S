@@ -2,10 +2,10 @@
 .global avx512_mul_8bpc
 
 avx2_mul_8bpc:
-    vmovd           %edi,       %xmm15
+    vmovd           %rdi,       %xmm15
     vpbroadcastw    %xmm15,     %ymm15
-    
-# RED CHANNEL
+
+
     vpermq          $0x08,      %ymm0,      %ymm6
     vpermq          $0x0D,      %ymm0,      %ymm7
     vpermq          $0x08,      %ymm1,      %ymm8
@@ -25,7 +25,6 @@ avx2_mul_8bpc:
     vpackuswb       %ymm9,      %ymm8,      %ymm1
 
 
-# BLUE CHANNEL
     vpermq          $0x08,      %ymm2,      %ymm10
     vpermq          $0x0D,      %ymm2,      %ymm11
     vpermq          $0x08,      %ymm3,      %ymm12
@@ -45,7 +44,6 @@ avx2_mul_8bpc:
     vpackuswb       %ymm13,     %ymm12,     %ymm3
 
 
-# GREEN CHANNEL
     vpermq          $0x08,      %ymm4,      %ymm6
     vpermq          $0x0D,      %ymm4,      %ymm7
     vpermq          $0x08,      %ymm5,      %ymm8

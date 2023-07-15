@@ -1,7 +1,8 @@
-.global avx2_subi_8bpc
-.global avx512_subi_8bpc
+.global avx2_neg_8bpc
+.global avx512_neg_8bpc
 
-avx2_subi_8bpc:
+avx2_neg_8bpc:
+    mov             $0xFF,      %rdi
     vmovd           %rdi,       %xmm15
     vpbroadcastb    %xmm15,     %ymm15
 
@@ -14,5 +15,5 @@ avx2_subi_8bpc:
 
     ret
 
-avx512_subi_8bpc:
+avx512_neg_8bpc:
     ret

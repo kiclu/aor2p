@@ -55,14 +55,10 @@ static uint64_t process_ns_np(args_t* args){
 }
 
 // process, no simd & pipeline
-static uint64_t process_ns(args_t* args){
-    return 0;
-}
+static uint64_t process_ns(args_t* args){ return 0; }
 
 // process, simd & no pipeline
-static uint64_t process_np(args_t* args){
-   return 0;
-}
+static uint64_t process_np(args_t* args){ return 0; }
 
 typedef void(*op_f)(uint8_t);
 
@@ -70,15 +66,19 @@ static op_f avx2_jump_table[] = {
     avx2_add_8bpc,
     avx2_sub_8bpc,
     avx2_subi_8bpc,
-    avx2_mul_8bpc
-    //avx2_div_8bpc,
-    //avx2_divi_8bpc
-    //avx2_adds_8bpc,
-    //avx2_subs_8bpc,
-    //avx2_subis_8bpc,
-    //avx2_pow_8bpc,
-    //avx2_min_8bpc,
-    //avx2_max_8bpc
+    avx2_mul_8bpc,
+    avx2_div_8bpc,
+    avx2_divi_8bpc,
+    avx2_adds_8bpc,
+    avx2_subs_8bpc,
+    avx2_subis_8bpc,
+    avx2_pow_8bpc,
+    avx2_min_8bpc,
+    avx2_max_8bpc,
+    avx2_log_8bpc,
+    avx2_abs_8bpc,
+    avx2_neg_8bpc,
+    avx2_gs_8bpc
 };
 
 // process, simd & pipeline
@@ -229,7 +229,6 @@ static void* process_smt_worker(void* arg){
 
     pthread_exit((void*)time);
 }
-
 
 static uint64_t process_smt(args_t* args){
     // initialize worker thread synchronization barriers
