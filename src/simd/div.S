@@ -21,10 +21,10 @@ avx2_div_8bpc:
     vpermq          $0x02,      %ymm10,     %ymm12
     vpermq          $0x03,      %ymm10,     %ymm13
 
-    vpmovzxbd       %xmm6,      %ymm6 
-    vpmovzxbd       %xmm7,      %ymm7 
-    vpmovzxbd       %xmm8,      %ymm8 
-    vpmovzxbd       %xmm9,      %ymm9 
+    vpmovzxbd       %xmm6,      %ymm6
+    vpmovzxbd       %xmm7,      %ymm7
+    vpmovzxbd       %xmm8,      %ymm8
+    vpmovzxbd       %xmm9,      %ymm9
     vpmovzxbd       %xmm10,     %ymm10
     vpmovzxbd       %xmm11,     %ymm11
     vpmovzxbd       %xmm12,     %ymm12
@@ -80,10 +80,10 @@ avx2_div_8bpc:
     vpermq          $0x02,      %ymm10,     %ymm12
     vpermq          $0x03,      %ymm10,     %ymm13
 
-    vpmovzxbd       %xmm6,      %ymm6 
-    vpmovzxbd       %xmm7,      %ymm7 
-    vpmovzxbd       %xmm8,      %ymm8 
-    vpmovzxbd       %xmm9,      %ymm9 
+    vpmovzxbd       %xmm6,      %ymm6
+    vpmovzxbd       %xmm7,      %ymm7
+    vpmovzxbd       %xmm8,      %ymm8
+    vpmovzxbd       %xmm9,      %ymm9
     vpmovzxbd       %xmm10,     %ymm10
     vpmovzxbd       %xmm11,     %ymm11
     vpmovzxbd       %xmm12,     %ymm12
@@ -139,10 +139,10 @@ avx2_div_8bpc:
     vpermq          $0x02,      %ymm10,     %ymm12
     vpermq          $0x03,      %ymm10,     %ymm13
 
-    vpmovzxbd       %xmm6,      %ymm6 
-    vpmovzxbd       %xmm7,      %ymm7 
-    vpmovzxbd       %xmm8,      %ymm8 
-    vpmovzxbd       %xmm9,      %ymm9 
+    vpmovzxbd       %xmm6,      %ymm6
+    vpmovzxbd       %xmm7,      %ymm7
+    vpmovzxbd       %xmm8,      %ymm8
+    vpmovzxbd       %xmm9,      %ymm9
     vpmovzxbd       %xmm10,     %ymm10
     vpmovzxbd       %xmm11,     %ymm11
     vpmovzxbd       %xmm12,     %ymm12
@@ -184,6 +184,6 @@ avx2_div_8bpc:
     vpackuswb       %ymm9,      %ymm8,      %ymm5
 
     ret
-    
+
 avx512_div_8bpc:
     ret
