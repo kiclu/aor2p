@@ -13,7 +13,7 @@ OBJCOPY = objcopy
 OBJDUMP = objdump
 
 CFLAGS  = -Wall -Wpedantic -O3 -Wno-sequence-point -Iinclude -Ilib -march=native
-ASFLAGS = 
+ASFLAGS =
 
 OBJECTS =
 
@@ -45,6 +45,7 @@ ${DIR_BUILD}:
 clean:
 	rm -rf ${DIR_BUILD}
 	rm -f ${TARGET}
+	rm -f ${TARGET}.asm
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.

@@ -54,15 +54,37 @@ static uint64_t process_ns_np(args_t* args){
     return timer_end(start_time) - write_time;
 }
 
+/*
 // process, no simd & pipeline
 static uint64_t process_ns(args_t* args){ return 0; }
 
 // process, simd & no pipeline
 static uint64_t process_np(args_t* args){ return 0; }
+*/
 
 typedef void(*op_f)(uint8_t);
 
-static op_f avx2_jump_table[] = {
+#ifdef  __AVX512__
+static op_f op_jump_table[] = {
+    avx512_add_8bpc,
+    avx512_sub_8bpc,
+    avx512_subi_8bpc,
+    avx512_mul_8bpc,
+    avx512_div_8bpc,
+    avx512_divi_8bpc,
+    avx512_adds_8bpc,
+    avx512_subs_8bpc,
+    avx512_subis_8bpc,
+    avx512_pow_8bpc,
+    avx512_min_8bpc,
+    avx512_max_8bpc,
+    avx512_log_8bpc,
+    avx512_abs_8bpc,
+    avx512_neg_8bpc,
+    avx512_gs_8bpc
+};
+#else
+static op_f op_jump_table[] = {
     avx2_add_8bpc,
     avx2_sub_8bpc,
     avx2_subi_8bpc,
@@ -80,6 +102,7 @@ static op_f avx2_jump_table[] = {
     avx2_neg_8bpc,
     avx2_gs_8bpc
 };
+#endif//__AVX512__
 
 // process, simd & pipeline
 static uint64_t process_st(args_t* args){
@@ -95,7 +118,7 @@ static uint64_t process_st(args_t* args){
 
             size_t j = 0;
             for(; j < (args->imgfile->width & ~0x3F); j += 64){
-                
+
                 __builtin_prefetch(ptr_r + (j << 2) + 64, 1);
                 __builtin_prefetch(ptr_g + (j << 2) + 64, 1);
                 __builtin_prefetch(ptr_b + (j << 2) + 64, 1);
@@ -104,9 +127,9 @@ static uint64_t process_st(args_t* args){
 
                 pnode_t* s = start_s;
                 for(; s && OP_WR != s->op && OP_KERN != s->op; s = s->next){
-                    avx2_jump_table[s->op](s->arg.op_const);
+                    op_jump_table[s->op](s->arg.op_const);
                 }
-                
+
                 simd_reg_store_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
                 end_s = s;
 
@@ -150,7 +173,7 @@ static void* process_smt_worker(void* arg){
     args_t* args = warg->args;
 
     uint64_t write_time = 0;
-    
+
     pnode_t* start_s = args->signal_chain;
     pnode_t* end_s = args->signal_chain;
     while(start_s){
@@ -169,7 +192,7 @@ static void* process_smt_worker(void* arg){
 
                 pnode_t* s = start_s;
                 for(; s && OP_WR != s->op && OP_KERN != s->op; s = s->next){
-                    avx2_jump_table[s->op](s->arg.op_const);
+                    op_jump_table[s->op](s->arg.op_const);
                 }
                 simd_reg_store_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
                 end_s = s;
@@ -237,7 +260,7 @@ static uint64_t process_smt(args_t* args){
 
     pthread_barrier_init(&barrier_kern, NULL, args->thread_count);
     pthread_barrier_init(&barrier_wr, NULL, args->thread_count);
-    
+
     // initialize worker threads
     process_worker_arg_t* warg = (process_worker_arg_t*)malloc(args->thread_count * sizeof(process_worker_arg_t));
     for(size_t i = 0; i < args->thread_count; ++i){
@@ -246,22 +269,22 @@ static uint64_t process_smt(args_t* args){
         warg[i].si = (args->imgfile->height / args->thread_count) * i;
         warg[i].ei = (args->imgfile->height / args->thread_count) * (i+1);
         warg[i].args = args;
-    
+
         warg[i].barrier_kern = &barrier_kern;
         warg[i].barrier_wr = &barrier_wr;
     }
     warg[args->thread_count - 1].ei = args->imgfile->height;
-    
+
     // create worker threads
     pthread_t* pt = (pthread_t*)malloc(args->thread_count * sizeof(pthread_t));
-    
+
     // start time measurement
     struct timespec start_time = timer_start();
 
     for(size_t i = 0; i < args->thread_count; ++i){
         pthread_create(&pt[i], NULL, process_smt_worker, (void*)&warg[i]);
     }
-    
+
     // wait for all worker threads to finish and compute time taken
     uint64_t total_write_time = 0;
     for(size_t i = 0; i < args->thread_count; ++i){
@@ -270,7 +293,7 @@ static uint64_t process_smt(args_t* args){
         total_write_time += *thread_write_time;
         free(thread_write_time);
     }
-    
+
     // free barriers
     pthread_barrier_destroy(&barrier_kern);
     pthread_barrier_destroy(&barrier_wr);

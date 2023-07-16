@@ -3,6 +3,7 @@
 
 #include<stdlib.h>
 
+#include<hw/imm.h>
 #include<img/imgfile.h>
 
 /*
