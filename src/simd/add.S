@@ -15,4 +15,10 @@ avx2_add_8bpc:
     ret
 
 avx512_add_8bpc:
+    vpbroadcastb    %edi,       %zmm31
+
+    vpaddb          %zmm31,     %zmm0,      %zmm0
+    vpaddb          %zmm31,     %zmm1,      %zmm1
+    vpaddb          %zmm31,     %zmm2,      %zmm2
+
     ret

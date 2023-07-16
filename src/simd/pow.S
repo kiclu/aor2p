@@ -53,7 +53,7 @@ skip_mul_0:
     vpmullw         %ymm13,     %ymm13,     %ymm13
     vpmullw         %ymm14,     %ymm14,     %ymm14
     vpmullw         %ymm15,     %ymm15,     %ymm15
-    
+
     shr             $0x01,      %rdi
     cmp             $0x00,      %rdi
     jne             loop_0_start
@@ -113,7 +113,7 @@ skip_mul_1:
     vpmullw         %ymm13,     %ymm13,     %ymm13
     vpmullw         %ymm14,     %ymm14,     %ymm14
     vpmullw         %ymm15,     %ymm15,     %ymm15
-    
+
     shr             $0x01,      %rdi
     cmp             $0x00,      %rdi
     jne             loop_1_start
@@ -124,4 +124,7 @@ loop_1_end:
     vpackuswb       %ymm7,      %ymm4,      %ymm4
     vpackuswb       %ymm8,      %ymm5,      %ymm5
 
+    ret
+
+avx512_pow_8bpc:
     ret

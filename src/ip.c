@@ -54,13 +54,11 @@ static uint64_t process_ns_np(args_t* args){
     return timer_end(start_time) - write_time;
 }
 
-/*
 // process, no simd & pipeline
 static uint64_t process_ns(args_t* args){ return 0; }
 
 // process, simd & no pipeline
 static uint64_t process_np(args_t* args){ return 0; }
-*/
 
 typedef void(*op_f)(uint8_t);
 

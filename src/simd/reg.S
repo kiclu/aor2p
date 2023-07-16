@@ -12,23 +12,31 @@ avx2_reg_load_8bpc:
 
     vmovdqa     0x00(%rdx), %ymm4
     vmovdqa     0x20(%rdx), %ymm5
-    
+
     ret
 
 avx2_reg_store_8bpc:
-    vmovdqa     %ymm0,  0x00(%rdi)
-    vmovdqa     %ymm1,  0x20(%rdi)
+    vmovdqa     %ymm0,      0x00(%rdi)
+    vmovdqa     %ymm1,      0x20(%rdi)
 
-    vmovdqa     %ymm2,  0x00(%rsi)
-    vmovdqa     %ymm3,  0x20(%rsi)
+    vmovdqa     %ymm2,      0x00(%rsi)
+    vmovdqa     %ymm3,      0x20(%rsi)
 
-    vmovdqa     %ymm4,  0x00(%rdx)
-    vmovdqa     %ymm5,  0x20(%rdx)
+    vmovdqa     %ymm4,      0x00(%rdx)
+    vmovdqa     %ymm5,      0x20(%rdx)
 
     ret
 
 avx512_reg_load_8bpc:
+    vmovdqa32   0x00(%rdi), %zmm0
+    vmovdqa32   0x00(%rsi), %zmm1
+    vmovdqa32   0x00(%rdx), %zmm2
+
     ret
 
 avx512_reg_store_8bpc:
+    vmovdqa32   %zmm0,      0x00(%rdi)
+    vmovdqa32   %zmm1,      0x00(%rsi)
+    vmovdqa32   %zmm2,      0x00(%rdx)
+
     ret
