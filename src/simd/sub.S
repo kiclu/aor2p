@@ -15,4 +15,10 @@ avx2_sub_8bpc:
     ret
 
 avx512_sub_8bpc:
+    vpbroadcastb    %edi        %zmm31
+
+    vpsubb          %zmm31,     %zmm0,      %zmm0
+    vpsubb          %zmm31,     %zmm1,      %zmm1
+    vpsubb          %zmm31,     %zmm2,      %zmm2
+
     ret
