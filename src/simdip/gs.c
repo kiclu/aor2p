@@ -1,5 +1,6 @@
-#include<simdip/gs.h>
+#include<op/gs.h>
 
+/*
 // simd, convert to grayscale, 8 bits per channel, pipeline
 void simd_gs_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     __m256 vr[] = {
@@ -70,7 +71,7 @@ void simd_gs_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b){
     _mm256_store_si256((__m256i*)ptr_g, vres);
     _mm256_store_si256((__m256i*)ptr_b, vres);
 }
-
+*/
 static inline uint8_t _gs(uint8_t r, uint8_t g, uint8_t b){
     return r * 0.299f + g * 0.587f + b * 0.114f;
 }
@@ -84,7 +85,7 @@ void simd_gs_8bpc_npl(imgfile_t* imgfile){
 
         size_t j = 0;
         for(; j < (imgfile->width & ~0x1F); j += 32){
-            simd_gs_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
+            // simd_gs_8bpc(ptr_r + j, ptr_g + j, ptr_b + j);
         }
 
         for(; j < imgfile->width; ++j){

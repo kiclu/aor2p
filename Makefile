@@ -12,8 +12,8 @@ LD      = ld
 OBJCOPY = objcopy
 OBJDUMP = objdump
 
-CFLAGS  = -Wall -O3 -Wno-sequence-point -Iinclude -Ilib -march=native
-ASFLAGS = -march=avx2
+CFLAGS  = -Wall -Wpedantic -O3 -Wno-sequence-point -Iinclude -Ilib -march=native
+ASFLAGS =
 
 OBJECTS =
 
@@ -28,7 +28,8 @@ vpath %.S $(sort $(dir ${SOURCES_S}))
 all: ${TARGET}
 
 ${TARGET}: ${OBJECTS} | ${DIR_BUILD}
-	${CC} -fPIE -o ${TARGET} ${OBJECTS} -lm -pthread
+	${CC} -o ${TARGET} ${OBJECTS} -lm -pthread
+	${OBJDUMP} -S ${TARGET} > ${TARGET}.asm
 
 ${DIR_BUILD}/%.o: %.s Makefile | ${DIR_BUILD}
 	@mkdir -p $(dir ${@})
@@ -44,6 +45,7 @@ ${DIR_BUILD}:
 clean:
 	rm -rf ${DIR_BUILD}
 	rm -f ${TARGET}
+	rm -f ${TARGET}.asm
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.

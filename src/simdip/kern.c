@@ -1,4 +1,4 @@
-#include<simdip/kern.h>
+#include<op/kern.h>
 
 /*
 OP_KERN
@@ -15,6 +15,9 @@ static ch_ptr_t kb;
 static inline void _swap(ch_ptr_t* r, ch_ptr_t* kr){
     ch_ptr_t tmp = *r; *r = *kr; *kr = tmp;
 }
+
+#include<immintrin.h>
+#include<stdbool.h>
 
 static void simd_kern_8bpc(uint8_t** ptr_r, uint8_t** ptr_g, uint8_t** ptr_b, kern_t k, size_t i, size_t j){
     __m256 vres_r = _mm256_setzero_ps();

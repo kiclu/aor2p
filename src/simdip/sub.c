@@ -1,12 +1,9 @@
-#include<simdip/sub.h>
+#include<op/sub.h>
 
 /*
 OP_SUB
 subtract a constant from every pixel in the image
 */
-
-// simd, sub constant, 8 bits per channel, pipeline
-extern void simd_sub_8bpc(uint8_t* ptr_r, uint8_t* ptr_g, uint8_t* ptr_b, uint8_t c);
 
 // simd, sub constant, 8 bits per channel, no pipeline
 void simd_sub_8bpc_npl(imgfile_t* imgfile, uint8_t c){
@@ -17,7 +14,7 @@ void simd_sub_8bpc_npl(imgfile_t* imgfile, uint8_t c){
 
         size_t j = 0;
         for(; j < (imgfile->width & ~0x1F); j += 32){
-            simd_sub_8bpc(ptr_r + j, ptr_g + j, ptr_b + j, c);
+            //simd_sub_8bpc(ptr_r + j, ptr_g + j, ptr_b + j, c);
         }
 
         for(; j < imgfile->width; ++j){
